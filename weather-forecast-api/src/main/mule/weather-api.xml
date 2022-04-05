@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	
+	<sub-flow name="API-key" doc:id="776b43b2-e53e-4c25-b225-86ce43ad9bbc" >
+		<set-variable value="70fe52fb07da40ad8a6212839221903" doc:name="API key" doc:id="23960f0d-b732-4684-88a8-5962333836fb" variableName="key" />
+	</sub-flow>
+	<sub-flow name="Location" doc:id="2474c3ed-14f7-45b7-9ed9-9e05dd34e65c" >
+		<set-variable value="#[attributes.queryParams.'q']" doc:name="Location" doc:id="17de2486-024d-4d30-a5b8-c7931f67d634" variableName="q" />
+	</sub-flow>
+	<flow name="weather-apiFlow" doc:id="f14f2357-9bae-4486-84bb-5d4979ad4887" >
+		<http:listener doc:name="Listener" doc:id="301d667d-909f-45ca-b2d4-137fa3eef669" config-ref="HTTP_Listener_configuration" path="weather"/>
+		<flow-ref doc:name="API-key" doc:id="5f9e5000-6d00-4454-be24-cdc6a0054631" name="API-key"/>
+		<flow-ref doc:name="Location" doc:id="3e2152b7-6f79-4b56-b744-5e4c51f4ab0e" name="Location"/>
+		<http:request method="GET" doc:name="GET / weather" doc:id="6016052e-8969-4415-a028-c67e048808f5" config-ref="HTTP_Request_config" path="/current.json">
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"CDN-RequestId" : "bada5deeece66d6f32eaa50a5a8774f2"
+}]]]></http:headers>
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"q" : vars.q,
+	"key" : vars.key
+}]]]></http:query-params>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="163a4724-24a5-4474-9de3-402fee3a3bd6" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+/** payload mapObject(obj, key, idx) -> {
+	name: obj.name,
+	region: obj.region,
+	country: obj.country
+} */
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Payload" doc:id="d86367b1-d110-4048-8e20-d2bce8269cb2" message="#[payload]"/>
+	</flow>
+	<flow name="forecast-apiFlow" doc:id="5f117b46-b218-4901-bc8b-fbad482a2726" >
+		<http:listener doc:name="Listener" doc:id="8931c52a-7390-4075-a7ef-b3be2cc521ae" config-ref="HTTP_Listener_configuration" path="forecast" />
+		<flow-ref doc:name="API-key" doc:id="69950d3e-c2ec-461f-ac9c-2ad1ac749c46" name="API-key"/>
+		<flow-ref doc:name="Location" doc:id="364376b0-8174-41a1-80d4-e8ee79295091" name="Location"/>
+		<set-variable value="#[attributes.queryParams.'days']" doc:name="days" doc:id="96ce498e-4f7f-46ec-90ea-74f19d125994" variableName="days"/>
+		<http:request method="GET" doc:name="GET / forecast" doc:id="a1c1ecc7-bd29-4b9c-b27c-c00a29db0ab0" config-ref="HTTP_Request_config" path="/forecast.json" >
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"CDN-RequestId" : "bada5deeece66d6f32eaa50a5a8774f2"
+}]]]></http:headers>
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"q" : vars.q,
+	"key" : vars.key,
+	"days" : vars.days
+}]]]></http:query-params>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="fafbffda-a177-4b45-aad5-afb3c41befc9" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+/** payload mapObject(obj, key, idx) -> {
+	name: obj.name,
+	region: obj.region,
+	country: obj.country
+} */
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Payload" doc:id="7d7ee3a4-4ebe-48e9-9579-6204e07944c4" message="#[payload]" />
+	</flow>
+	<flow name="astronomy-apiFlow" doc:id="6adaef52-4a2a-4bdd-9a38-d61f4f854300" >
+		<http:listener doc:name="Listener" doc:id="31c3352c-b99b-4a0d-936e-30980e1142b4" config-ref="HTTP_Listener_configuration" path="astronomy" />
+		<flow-ref doc:name="API-key" doc:id="cfe6aecc-a05f-4746-b277-64175e90d866" name="API-key"/>
+		<flow-ref doc:name="Location" doc:id="1dbe3b76-ae1d-440f-be00-48059184b9fa" name="Location"/>
+		<set-variable value="#[attributes.queryParams.'dt']" doc:name="Date" doc:id="601c91b0-36c4-402a-a0c2-4024828b3c78" variableName="dt"/>
+		<http:request method="GET" doc:name="GET / astronomy" doc:id="0dcc1bb8-2b16-46e6-a89b-09313e117eae" config-ref="HTTP_Request_config" path="/astronomy.json" >
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"CDN-RequestId" : "bada5deeece66d6f32eaa50a5a8774f2"
+}]]]></http:headers>
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"dt" : vars.dt,
+	"q" : vars.q,
+	"key" : vars.key
+}]]]></http:query-params>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="57c1adb9-2d21-4ab4-87c3-29906372e529" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+/** payload mapObject(obj, key, idx) -> {
+	name: obj.name,
+	region: obj.region,
+	country: obj.country
+} */
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Payload" doc:id="32870c7f-7f8f-4a47-b8df-834d715d703a" message="#[payload]" />
+	</flow>
+	<flow name="timezone-apiFlow" doc:id="0943ec7e-9093-413a-9700-5cad1cb99932" >
+		<http:listener doc:name="Listener" doc:id="02921eaa-956d-4085-ba81-12c660ee4b91" config-ref="HTTP_Listener_configuration" path="timezone" />
+		<flow-ref doc:name="API-key" doc:id="5109a2dc-78c3-45af-a1ad-7c70505e4587" name="API-key" />
+		<flow-ref doc:name="Location" doc:id="bbd01608-064a-4f24-b12a-9dd129b508ec" name="Location" />
+		<http:request method="GET" doc:name="GET / timezone" doc:id="c8c60980-7c8b-482c-a5fb-94c875643d0c" config-ref="HTTP_Request_config" path="/timezone.json" >
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"CDN-RequestId" : "bada5deeece66d6f32eaa50a5a8774f2"
+}]]]></http:headers>
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"q" : vars.q,
+	"key" : vars.key
+}]]]></http:query-params>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="e52be037-a99a-4af2-9458-bd118458a0b8" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+/** payload mapObject(obj, key, idx) -> {
+	name: obj.name,
+	region: obj.region,
+	country: obj.country
+} */
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Payload" doc:id="2383db33-5a10-4969-a769-66e8201c803b" message="#[payload]" />
+	</flow>
+	<flow name="sports-apiFlow" doc:id="2c60fe30-4be2-4982-b79a-974b0d5674a0" >
+		<http:listener doc:name="Listener" doc:id="cf6eb1fb-d3b0-4ba4-ba48-6820dcf5f0be" config-ref="HTTP_Listener_configuration" path="sports" />
+		<flow-ref doc:name="API-key" doc:id="27419d09-4dcc-45b8-818f-1154fb6ddcb0" name="API-key" />
+		<flow-ref doc:name="Location" doc:id="64f8d699-ded3-4dcc-b874-5b808a30f63a" name="Location" />
+		<http:request method="GET" doc:name="GET / sports" doc:id="9ff2907c-903b-447d-bd72-aff32bc31522" config-ref="HTTP_Request_config" path="/sports.json" >
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"CDN-RequestId" : "bada5deeece66d6f32eaa50a5a8774f2"
+}]]]></http:headers>
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"q" : vars.q,
+	"key" : vars.key
+}]]]></http:query-params>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="605adb22-0a09-4c77-89cf-2925ce0841e7" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+/** payload mapObject(obj, key, idx) -> {
+	name: obj.name,
+	region: obj.region,
+	country: obj.country
+} */
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Payload" doc:id="c5e4e18f-1bb6-41ca-b48e-1a3ab345d6d0" message="#[payload]" />
+	</flow>
+	<flow name="search-apiFlow" doc:id="3a3e7545-4eff-4faa-b59f-0fcf0792ce8b" >
+		<http:listener doc:name="Listener" doc:id="9907a94b-a275-4bcb-ba5f-0b1a4f1c5090" config-ref="HTTP_Listener_configuration" path="search" />
+		<flow-ref doc:name="API-key" doc:id="5cf252a0-a795-46de-b44b-f1e398666659" name="API-key" />
+		<flow-ref doc:name="Location" doc:id="7178134c-4ab1-44e3-9663-0b11de655f5a" name="Location" />
+		<http:request method="GET" doc:name="GET / search" doc:id="6de1e042-aa86-43aa-9ad4-05571f3e370c" config-ref="HTTP_Request_config" path="/search.json" >
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"CDN-RequestId" : "bada5deeece66d6f32eaa50a5a8774f2"
+}]]]></http:headers>
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"q" : vars.q,
+	"key" : vars.key
+}]]]></http:query-params>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="631aa879-328a-45ba-9875-1bbf3bcdb8bc" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+/** payload mapObject(obj, key, idx) -> {
+	name: obj.name,
+	region: obj.region,
+	country: obj.country
+} */
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Payload" doc:id="9d998264-f6ee-41c7-8fb6-9bd21ea2ce61" message="#[payload]" />
+	</flow>
+</mule>

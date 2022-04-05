@@ -1,0 +1,22 @@
+{
+    "location": {
+        "name": "Lviv",
+        "region": "",
+        "country": "Ukraine",
+        "lat": 49.83,
+        "lon": 24.0,
+        "tz_id": "Europe/Kiev",
+        "localtime_epoch": 1647868027,
+        "localtime": "2022-03-21 15:07"
+    },
+    "astronomy": {
+        "astro": {
+            "sunrise": "06:25 AM",
+            "sunset": "06:38 PM",
+            "moonrise": "10:47 PM",
+            "moonset": "07:50 AM",
+            "moon_phase": "Full Moon",
+            "moon_illumination": "76"
+        }
+    }
+}

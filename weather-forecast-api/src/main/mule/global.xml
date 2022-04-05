@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+	<http:listener-config name="HTTP_Listener_configuration" doc:name="HTTP Listener config" doc:id="a6d8af48-684d-4178-ac92-d5f2b97fa414" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_config" doc:name="HTTP Request configuration" doc:id="4ec7ebe0-7a08-4214-851d-56f956e15434" basePath="/v1" >
+		<http:request-connection host="api.weatherapi.com"/>
+	</http:request-config>
+	<global-property doc:name="Global Property" doc:id="fd15c94b-d2a2-40ac-aeac-819d8852b7d2" name="mule_env" value="dev" />
+	
+</mule>

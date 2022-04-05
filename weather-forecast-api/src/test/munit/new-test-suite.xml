@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="new-test-suite.xml" />
+	<munit:test name="new-test-suite-weather-apiFlowTest" doc:id="0e0c29b1-caf0-464e-8031-0113ac72f8e2" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock GET / weather" doc:id="9915073d-4af8-4abd-bf10-758e66809732" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="6016052e-8969-4415-a028-c67e048808f5" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[MunitTools::getResourceAsStream('mocks/weather.json')]" />
+					<munit-tools:attributes value='#[&#10;    {&#10;      "statusCode": 200&#10;    }&#10;]' />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set API-key" doc:id="e8e1ae9e-77db-4bf5-a846-441528ad3015" >
+				<munit:variables >
+					<munit:variable key="key" value="70fe52fb07da40ad8a6212839221903" />
+				</munit:variables>
+			</munit:set-event>
+			<munit:set-event doc:name="Set Location" doc:id="d32c5043-2d9b-40c3-9cdc-75bb83810997" >
+				<munit:variables >
+					<munit:variable key="q" value="Rivne" />
+				</munit:variables>
+			</munit:set-event>
+			<flow-ref doc:name="Flow-ref to weather-apiFlow" doc:id="1aca8dca-0e73-4150-853e-657bbe912f29" name="weather-apiFlow"/>
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:assert-that doc:name="Assert that" doc:id="ce6dbefc-9a93-47ac-b8d5-a43b52ee1a37" expression="#[payload]" is="#[MunitTools::notNullValue()]"/>
+			<munit-tools:verify-call doc:name="Verify call" doc:id="8536a9fa-6ae1-4193-810b-64793660e015" processor="logger" atLeast="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="d86367b1-d110-4048-8e20-d2bce8269cb2" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="new-test-suite-forecast-apiFlowTest" doc:id="1c851ae3-6882-4078-bbe1-a8314713c607" description="Test">
+		<munit:behavior>
+			<munit-tools:mock-when doc:name="Mock GET / forecast" doc:id="6fa724d5-ba62-47e5-bfc4-a8ffdbcbb22b" processor="http:request" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="a1c1ecc7-bd29-4b9c-b27c-c00a29db0ab0" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[MunitTools::getResourceAsStream('mocks/forecast.json')]" />
+					<munit-tools:attributes value='#[&#10;    {&#10;      "statusCode": 200&#10;    }&#10;]' />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set API-key" doc:id="7701c9e0-b705-4aef-8caa-33c8f3a14a6b">
+				<munit:variables>
+					<munit:variable key="key" value="70fe52fb07da40ad8a6212839221903" />
+				</munit:variables>
+			</munit:set-event>
+			<munit:set-event doc:name="Set Location" doc:id="14030ce9-b90e-4090-943d-5f3503d4acf1">
+				<munit:variables >
+					<munit:variable key="q" value="Kopenhagen" />
+				</munit:variables>
+			</munit:set-event>
+			<flow-ref doc:name="Flow-ref to forecast-apiFlow" doc:id="0822bc27-3ab0-4452-9bf8-5a0104fd776e" name="forecast-apiFlow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="ef4f558a-fb41-4376-9655-9861d96f4c4a" expression="#[payload]" is="#[MunitTools::notNullValue()]"/>
+			<munit-tools:verify-call doc:name="Verify call" doc:id="c607d45e-afe8-4e44-a779-c32a020fb080" processor="logger" atLeast="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="7d7ee3a4-4ebe-48e9-9579-6204e07944c4" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="new-test-suite-astronomy-apiFlowTest" doc:id="775cb924-06db-4ce2-9048-4df5672d8809" description="Test">
+		<munit:behavior>
+			<munit-tools:mock-when doc:name="Mock GET / astronomy" doc:id="70023958-abbb-47d0-a16f-537b8dc324dd" processor="http:request" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="0dcc1bb8-2b16-46e6-a89b-09313e117eae" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[MunitTools::getResourceAsStream('mocks/astronomy.json')]" />
+					<munit-tools:attributes value='#[&#10;    {&#10;      "statusCode": 200&#10;    }&#10;]' />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set API-key" doc:id="adb9ad6b-a2fb-4fad-ad6f-17e4fa421528">
+				<munit:variables>
+					<munit:variable key="key" value="70fe52fb07da40ad8a6212839221903" />
+				</munit:variables>
+			</munit:set-event>
+			<munit:set-event doc:name="Set Location" doc:id="32a0e1e7-ee81-44e8-93d9-ae5cfc854500">
+				<munit:variables >
+					<munit:variable key="q" value="Lviv" />
+				</munit:variables>
+			</munit:set-event>
+			<flow-ref doc:name="Flow-ref to astronomy-apiFlow" doc:id="41f18809-847b-4077-a75d-4b6cb285764e" name="astronomy-apiFlow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="758162fb-e6b2-482a-b21d-2d053ae8f588" expression="#[payload]" is="#[MunitTools::notNullValue()]"/>
+			<munit-tools:verify-call doc:name="Verify call" doc:id="b60b6d5c-7805-4e49-9824-87d7edc81318" processor="logger" atLeast="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="32870c7f-7f8f-4a47-b8df-834d715d703a" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="new-test-suite-timezone-apiFlowTest" doc:id="074eec39-2a92-4d33-9991-3053f46a6f88" description="Test">
+		<munit:behavior>
+			<munit-tools:mock-when doc:name="Mock GET / timezone" doc:id="306c591e-2415-41a7-b0a5-08683f4bf75e" processor="http:request" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="c8c60980-7c8b-482c-a5fb-94c875643d0c" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[MunitTools::getResourceAsStream('mocks/timezone.json')]" />
+					<munit-tools:attributes value='#[&#10;    {&#10;      "statusCode": 200&#10;    }&#10;]' />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set API-key" doc:id="05cdda3e-6de0-4cdb-8b9b-983ffb1612bd">
+				<munit:variables>
+					<munit:variable key="key" value="70fe52fb07da40ad8a6212839221903" />
+				</munit:variables>
+			</munit:set-event>
+			<munit:set-event doc:name="Set Location" doc:id="609c2f1a-1147-4cb9-9275-842eba2ab307">
+				<munit:variables >
+					<munit:variable key="q" value="Paris" />
+				</munit:variables>
+			</munit:set-event>
+			<flow-ref doc:name="Flow-ref to timezone-apiFlow" doc:id="7e706e1e-a0dc-42d5-afe7-69c5741c10eb" name="timezone-apiFlow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="359a4711-477d-4d4a-9781-9df81aaf7007" expression="#[payload]" is="#[MunitTools::notNullValue()]"/>
+			<munit-tools:verify-call doc:name="Verify call" doc:id="f1a3f205-ae59-48cb-8bb4-938d69716a5d" processor="logger" atLeast="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="2383db33-5a10-4969-a769-66e8201c803b" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="new-test-suite-sports-apiFlowTest" doc:id="2b4b1553-1c21-47af-b839-5c7e9e1664e4" description="Test">
+		<munit:behavior>
+			<munit-tools:mock-when doc:name="Mock GET / sports" doc:id="3da3c366-3a84-4d4c-873f-64aae4753a44" processor="http:request" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="9ff2907c-903b-447d-bd72-aff32bc31522" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[MunitTools::getResourceAsStream('mocks/sport-response.json')]" />
+					<munit-tools:attributes value='#[&#10;    {&#10;      "statusCode": 200&#10;    }&#10;]' />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set API-key" doc:id="876ecc13-c25e-4a05-8fad-fbb6eb2beb04">
+				<munit:variables>
+					<munit:variable key="key" value="70fe52fb07da40ad8a6212839221903" />
+				</munit:variables>
+			</munit:set-event>
+			<munit:set-event doc:name="Set Location" doc:id="849d6de2-73bb-4901-b7f6-a76bd93093e8">
+				<munit:variables >
+					<munit:variable key="q" value="London" />
+				</munit:variables>
+			</munit:set-event>
+			<flow-ref doc:name="Flow-ref to sports-apiFlow" doc:id="6f6022bd-4403-4509-ad78-7928c50c284a" name="sports-apiFlow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="ea38ab4d-c758-4270-b940-3c8845dfa472" expression="#[payload]" is="#[MunitTools::notNullValue()]"/>
+			<munit-tools:verify-call doc:name="Verify call" doc:id="526d8c7a-f9b7-4e99-8f7d-2970d5c08d47" processor="logger" atLeast="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="c5e4e18f-1bb6-41ca-b48e-1a3ab345d6d0" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="new-test-suite-search-apiFlowTest" doc:id="9d80efd5-ccc2-49e8-94d7-58f83203e5c7" description="Test">
+		<munit:behavior>
+			<munit-tools:mock-when doc:name="Mock GET / search" doc:id="2219f80b-a49a-496e-bfb2-52726bcdd330" processor="http:request" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="6de1e042-aa86-43aa-9ad4-05571f3e370c" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[MunitTools::getResourceAsStream('mocks/search-response.json')]" />
+					<munit-tools:attributes value='#[&#10;    {&#10;      "statusCode": 200&#10;    }&#10;]' />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set API-key" doc:id="946b3124-f0c5-4a37-b0e1-f0c52df9bff2">
+				<munit:variables>
+					<munit:variable key="key" value="70fe52fb07da40ad8a6212839221903" />
+				</munit:variables>
+			</munit:set-event>
+			<munit:set-event doc:name="Set Location" doc:id="b003b33a-cbb1-42e7-95b3-f654a54d7cbb">
+				<munit:variables >
+					<munit:variable key="q" value="London" />
+				</munit:variables>
+			</munit:set-event>
+			<flow-ref doc:name="Flow-ref to search-apiFlow" doc:id="cf7c2532-7878-4aed-bf88-30b049bd6c3b" name="search-apiFlow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="5f20e9f0-a4ea-44ee-ab83-6af1592efb02" expression="#[payload]" is="#[MunitTools::notNullValue()]"/>
+			<munit-tools:verify-call doc:name="Verify call" doc:id="6c42c8e5-c06a-4cc6-86a9-8b6476f91b94" processor="logger" atLeast="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="9d998264-f6ee-41c7-8fb6-9bd21ea2ce61" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+
+
+</mule>

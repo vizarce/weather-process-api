@@ -101,6 +101,24 @@ output application/json
 		<flow-ref doc:name="Write to OS" doc:id="b0323d37-966d-4f31-88ea-e8ff5429946e" name="writingToObjectStore" />
 		<set-payload value="#[vars.fullPayload]" doc:name="Full Payload" doc:id="6c811d1f-e948-48bc-8796-bc27a80bbe79" />
 		<logger level="INFO" doc:name="Payload" doc:id="30023d72-54ab-49d5-85e4-93af47d2658c" message="#[payload]"/>
+		<error-handler >
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="7c4d1635-9056-41ee-af32-d14dfb323563" type="MONGO:DUPLICATE_ERROR">
+				<ee:transform doc:name="Duplicate Mongo Error" doc:id="36b08ad2-b0f0-483f-b642-ed4f0b79e9b9" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	message: "The document is already exist in the Mongo DB",
+	errorType: error.errorType.namespace as String ++ ":" ++ error.errorType.identifier as String,
+	description: error.description,
+	cause: error.cause.message,
+	chronology: now()
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-continue>
+		</error-handler>
 	</flow>
 	<sub-flow name="writingToObjectStore" doc:id="63b0bcc2-f430-4a08-a60d-3d7b02ea48b1" >
 		<set-variable value="#[payload.id]" doc:name="Key" doc:id="9223c41d-3c03-4bab-bed2-083148ba62d4" variableName="key"/>

@@ -1,0 +1,1064 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:vm="http://www.mulesoft.org/schema/mule/vm" xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
+	xmlns:email="http://www.mulesoft.org/schema/mule/email"
+	xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:mongo="http://www.mulesoft.org/schema/mule/mongo" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/mongo http://www.mulesoft.org/schema/mule/mongo/current/mule-mongo.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
+http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="ad139c0a-4529-4c82-8ada-66a1f5925b97" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="2e713aa1-c9a7-409c-9af6-22d7754cac81" >
+		<http:request-connection host="weather-forecast-system-api.us-e2.cloudhub.io" />
+	</http:request-config>
+	<file:config name="File_Config" doc:name="File Config" doc:id="0fc3849b-de45-4cd0-be23-ced9afe8ff89" >
+		<file:connection workingDir="C:\Users\vi\Desktop\weather API" />
+	</file:config>
+	<mongo:config name="MongoDB_Config" doc:name="MongoDB Config" doc:id="932b4556-9445-4d32-be58-43340768e62d" >
+		<mongo:connection-string-connection connectionString="mongodb+srv://vitalii:zhakun@cluster0.6sxqg.mongodb.net/weatherForecast" />
+	</mongo:config>
+	<os:object-store name="Object_store" doc:name="Object store" doc:id="8bc2163a-f771-425f-99ff-f868c76c87bf" />
+	<email:smtp-config name="Email_SMTP" doc:name="Email SMTP" doc:id="903f2ec5-8ff3-4a0e-b0a7-5058fcad7903" >
+		<email:smtp-connection host="smtp.gmail.com" port="587" user="vitaliizhakun@gmail.com" password="VIStudio1975" >
+			<pooling-profile />
+			<email:properties >
+				<email:property key="mail.smtp.starttls.enable" value="true" />
+			</email:properties>
+		</email:smtp-connection>
+	</email:smtp-config>
+	<vm:config name="VM_Config" doc:name="VM Config" doc:id="e6ce556d-1ce7-46ed-9fa6-47df262f1c54" >
+		<vm:queues >
+			<vm:queue queueName="send" />
+		</vm:queues>
+	</vm:config>
+	<sub-flow name="location" doc:id="4e0fb1ad-2a35-429d-ae96-c3efc69c1155" >
+		<set-variable value="#[attributes.queryParams.'q']" doc:name="Location" doc:id="83d64e9c-5bc4-447e-945a-83dd71851d35" variableName="q"/>
+	</sub-flow>
+	<flow name="weather-forecast-process-apiFlow" doc:id="10ac43ee-0294-4820-9a41-4373fe647564" >
+		<http:listener doc:name="GET /weather" doc:id="ad62a665-2515-4b52-b214-f78ca64cb2bf" config-ref="HTTP_Listener_config" path="weather"/>
+		<flow-ref doc:name="Flow Reference" doc:id="9d5270b5-e9d6-4dbb-9c7b-e4ee4b3865e4" name="location"/>
+		<http:request method="GET" doc:name="GET / weather" doc:id="c6de5d59-d1a5-47d3-9ae7-c8d4e108ae6d" config-ref="HTTP_Request_configuration" path="/weather" target="response">
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"q" : vars.q
+}]]]></http:query-params>
+		</http:request>
+		<ee:transform doc:name="HashCode" doc:id="40742359-fcff-4e78-aed6-9ccd1544818c">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	statusCode: attributes.statusCode,
+	headersContentLength: attributes.headers.'content-length',
+	hashCode: java!com::weather::Weather::getHashCode(payload),
+	document: payload
+}]]></ee:set-payload>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="doc"><![CDATA[%dw 2.0
+output application/json
+---
+{
+	statusCode: attributes.statusCode,
+	headersContentLength: attributes.headers.'content-length',
+	hashCode: java!com::weather::Weather::getHashCode(payload),
+	document: payload
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<mongo:insert-document collectionName="weather" doc:name="Insert document" doc:id="df3caf32-aeb6-475a-89ee-f4f669e05f59" config-ref="MongoDB_Config"/>
+		<ee:transform doc:name="ID and HashCode execution" doc:id="79cbbacb-3145-4129-88bf-dfcf3658b536" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	id: payload.'_id'.'\$oid',
+	hashCode: payload.hashCode,
+	content: payload
+}]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="fullPayload" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	id: payload.'_id'.'\$oid',
+	hashCode: payload.hashCode,
+	content: payload
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="Write to OS" doc:id="b0323d37-966d-4f31-88ea-e8ff5429946e" name="writingToObjectStore" />
+		<set-payload value="#[vars.fullPayload]" doc:name="Full Payload" doc:id="6c811d1f-e948-48bc-8796-bc27a80bbe79" />
+		<logger level="INFO" doc:name="Payload" doc:id="30023d72-54ab-49d5-85e4-93af47d2658c" message="#[payload]"/>
+	</flow>
+	<sub-flow name="writingToObjectStore" doc:id="63b0bcc2-f430-4a08-a60d-3d7b02ea48b1" >
+		<set-variable value="#[payload.id]" doc:name="Key" doc:id="9223c41d-3c03-4bab-bed2-083148ba62d4" variableName="key"/>
+		<os:store doc:name="Store HashCode" doc:id="f9e0f925-a93b-45b2-a624-8aab34053b4c" key="#[vars.key]" objectStore="Object_store">
+			<os:value ><![CDATA[#[payload.hashCode]]]></os:value>
+		</os:store>
+		<os:retrieve doc:name="Retrieve HashCode" doc:id="27b1a2d8-f502-4c98-96cb-85f0e980e6d4" key="#[vars.key]" objectStore="Object_store">
+			<os:default-value ><![CDATA[0]]></os:default-value>
+		</os:retrieve>
+		<ee:transform doc:name="OS Data" doc:id="0ccf3e12-1912-46eb-8f72-7e3af9bc718d" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	key: vars.key,
+	hashCode: payload
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<email:send doc:name="Send" doc:id="5f679631-9c1c-42d4-9aa4-c7d18ae1055c" config-ref="Email_SMTP" fromAddress="vitaliizhakun@gmail.com" subject="The Document was Created in MongoDB">
+			<email:to-addresses>
+				<email:to-address value="vizarce@gmail.com" />
+			</email:to-addresses>
+			<email:body contentType="text/plain" encoding="UTF-8">
+				<email:content><![CDATA[#[output text/plain --- "The Document " ++ payload.key as String ++ " about the weather in " ++ vars.q as String ++ " with hashCode = " ++ payload.hashCode as String ++ " was successfully created."]]]></email:content>
+			</email:body>
+		</email:send>
+		<logger level="INFO" doc:name="Logger" doc:id="09d1f860-5271-4258-b945-5c541c9ac572" message="#[payload]"/>
+	</sub-flow>
+	<flow name="weather-forecast-astronomy" doc:id="192ffa35-f1b4-4d45-ace3-7e8056c849e9" >
+		<http:listener doc:name="GET /wa" doc:id="ce8060c4-0290-484c-b559-936b4740df94" config-ref="HTTP_Listener_config" path="wa"/>
+		<flow-ref doc:name="Flow Reference" doc:id="5918de2f-d1b9-48cc-91f0-8488efc4d822" name="location"/>
+		<scatter-gather doc:name="Scatter-Gather" doc:id="c44944a6-f407-4fa4-9874-24a41cde0baa" >
+			<route >
+				<http:request method="GET" doc:name="GET / weather" doc:id="e6d0a7ac-5e0d-4c49-afd1-56683ef2f04e" config-ref="HTTP_Request_configuration" path="/weather">
+			<http:query-params><![CDATA[#[output application/java
+---
+{
+	"q" : vars.q
+}]]]></http:query-params>
+		</http:request>
+				<ee:transform doc:name="Set VARS location and current" doc:id="f2eb7bf2-e307-454d-a191-5d4ea9aa0647" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="location" ><![CDATA[%dw 2.0
+output application/json
+---
+payload.location]]></ee:set-variable>
+						<ee:set-variable variableName="current" ><![CDATA[%dw 2.0
+output application/json
+---
+payload.current]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+				<logger level="INFO" doc:name="Location" doc:id="615143e1-d32f-4fd4-8468-063f2cde18fe" message="#[vars.location]"/>
+				<logger level="INFO" doc:name="Current" doc:id="6072c2b7-728a-4e91-bb26-48b7d72e5c25" message="#[vars.current]"/>
+			</route>
+			<route >
+				<set-variable value="#[attributes.queryParams.'dt']" doc:name="Date" doc:id="ba8dfad4-8391-4dcc-aac1-e8ee4834cd92" variableName="dt"/>
+				<http:request method="GET" doc:name="GET / astronomy" doc:id="8aa3a396-8dee-444f-b754-49ef40b8b371" config-ref="HTTP_Request_configuration" path="/astronomy">
+			<http:query-params><![CDATA[#[output application/java
+---
+{
+	"dt" : vars.dt,
+	"q" : vars.q
+}]]]></http:query-params>
+		</http:request>
+				<ee:transform doc:name="Set VARS astronomy" doc:id="27bf321e-f5d2-4975-a7c3-35f5a0468416" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="astronomy" ><![CDATA[%dw 2.0
+output application/java
+---
+payload.astronomy.astro]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+				<logger level="INFO" doc:name="Astronomy" doc:id="13274bc0-29ff-4132-b9f8-22e9821cc986" message="#[vars.astronomy]"/>
+			</route>
+		</scatter-gather>
+		<ee:transform doc:name="Combine Data" doc:id="dec90581-e399-4732-82c5-b71a57431cf7" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+
+fun dayTime(x) = do {
+	var dayTime = 
+	if (x == 1)
+		"Day"
+	else
+		"Night"
+	---
+	dayTime
+}
+---
+/** payload mapObject(obj) -> {
+	location: obj.payload[0],
+	astronomy: obj.payload[1]
+} */
+{
+	code: vars.current.condition.code,
+	name: vars.location.name,
+	region: vars.location.region,
+	country: vars.location.country,
+	timeZone: vars.location.'tz_id',
+	localTime: vars.location.localtime,
+	lastUpdated: vars.current.'last_updated',
+	latitude: vars.location.lat,
+	longitude: vars.location.lon,
+	dayTime: dayTime(vars.current.'is_day'),
+	temperatureC: vars.current.'temp_c' as String ++ " C",
+	temperatureF: vars.current.'temp_f' as String ++ " F",
+	feelsLikeC: vars.current.'feelslike_c' as String ++ " C",
+	feelsLikeF: vars.current.'feelslike_f' as String ++ " F",
+	condition: upper(vars.current.condition.text),
+	windDirection: vars.current.'wind_dir',
+	windDegree: vars.current.'wind_degree' as String ++ " degrees",
+	windMPH: vars.current.'wind_mph' as String ++ " miles/hour",
+	windKPH: vars.current.'wind_kph' as String ++ " kilometers/hour",
+	windGustMPH: vars.current.'gust_mph' as String ++ " miles/hour",
+	windGustKPH: vars.current.'gust_kph' as String ++ " kilometers/hour",
+	pressureMB: vars.current.'pressure_mb' as String ++ " millibar",
+	pressureIN: vars.current.'pressure_in' as String ++ " inches of Mercury",
+	precipitationMM: vars.current.'precip_mm' as String ++ " mm",
+	precipitationIN: vars.current.'precip_in' as String ++ " inches",
+	visibilityKM: vars.current.'vis_km' as String ++ " km",
+	visibilityM: vars.current.'vis_miles' as String ++ " miles",
+	humidity: vars.current.humidity,
+	clouds: vars.current.cloud,
+	uv: vars.current.uv,
+	sunrise: vars.astronomy.sunrise,
+	sunset: vars.astronomy.sunset,
+	moonrise: vars.astronomy.moonrise,
+	moonset: vars.astronomy.moonset,
+	moonPhase: vars.astronomy.'moon_phase',
+	moonIllumination: vars.astronomy.'moon_illumination'
+}]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="fullDocument" ><![CDATA[%dw 2.0
+output application/json
+
+fun dayTime(x) = do {
+	var dayTime = 
+	if (x == 1)
+		"Day"
+	else
+		"Night"
+	---
+	dayTime
+}
+---
+/** payload mapObject(obj) -> {
+	location: obj.payload[0],
+	astronomy: obj.payload[1]
+} */
+{
+	code: vars.current.condition.code,
+	name: vars.location.name,
+	region: vars.location.region,
+	country: vars.location.country,
+	timeZone: vars.location.'tz_id',
+	localTime: vars.location.localtime,
+	lastUpdated: vars.current.'last_updated',
+	latitude: vars.location.lat,
+	longitude: vars.location.lon,
+	dayTime: dayTime(vars.current.'is_day'),
+	temperatureC: vars.current.'temp_c' as String ++ " C",
+	temperatureF: vars.current.'temp_f' as String ++ " F",
+	feelsLikeC: vars.current.'feelslike_c' as String ++ " C",
+	feelsLikeF: vars.current.'feelslike_f' as String ++ " F",
+	condition: upper(vars.current.condition.text),
+	windDirection: vars.current.'wind_dir',
+	windDegree: vars.current.'wind_degree' as String ++ " degrees",
+	windMPH: vars.current.'wind_mph' as String ++ " miles/hour",
+	windKPH: vars.current.'wind_kph' as String ++ " kilometers/hour",
+	windGustMPH: vars.current.'gust_mph' as String ++ " miles/hour",
+	windGustKPH: vars.current.'gust_kph' as String ++ " kilometers/hour",
+	pressureMB: vars.current.'pressure_mb' as String ++ " millibar",
+	pressureIN: vars.current.'pressure_in' as String ++ " inches of Mercury",
+	prcipitationMM: vars.current.'precip_mm' as String ++ " mm",
+	prcipitationIN: vars.current.'precip_in' as String ++ " inches",
+	visibilityKM: vars.current.'vis_km' as String ++ " km",
+	visibilityM: vars.current.'vis_miles' as String ++ " miles",
+	humidity: vars.current.humidity,
+	clouds: vars.current.cloud,
+	uv: vars.current.uv,
+	sunrise: vars.astronomy.sunrise,
+	sunset: vars.astronomy.sunset,
+	moonrise: vars.astronomy.moonrise,
+	moonset: vars.astronomy.moonset,
+	moonPhase: vars.astronomy.'moon_phase',
+	moonIllumination: vars.astronomy.'moon_illumination',
+	location: vars.location,
+	current: vars.current,
+	astronomy: vars.astronomy
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+	</flow>
+	<flow name="combine" doc:id="363c87ea-ee61-4031-be03-4a195d048fd8" >
+		<http:listener doc:name="GET /combine" doc:id="55518247-fa6c-47d2-ac4b-1b61ce432031" config-ref="HTTP_Listener_config" path="combine"/>
+		<os:retrieve-all-keys doc:name="Retrieve all keys" doc:id="9f5c356b-4664-4c1d-a580-ae4d058668ed" objectStore="Object_store"/>
+		<ee:transform doc:name="Transform Message" doc:id="8e4bbd54-2442-4674-9b2d-d509728307c9" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+payload[0]]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="61f821f1-cb1e-4b5c-9d47-f95fb8755a1f" message="#[payload]"/>
+		<mongo:update-documents collectionName="weather" doc:name="Update documents" doc:id="206ffb4d-bdf6-4c9b-9542-6b8eeeedc7e1" config-ref="MongoDB_Config"/>
+		<ee:transform doc:name="Transform Message" doc:id="0eaaeeb4-6c12-48dd-af7d-77ae4bedd6f8" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="7d95311b-2848-4caf-b0dd-c9f1ee42f9a1" message="#[payload]" />
+	</flow>
+	<flow name="writeToDatabaseAndOS" doc:id="751529de-c6f9-4865-a708-83be0b1de1e3" >
+		<http:listener doc:name="GET /write" doc:id="09589204-6107-4369-9042-70c0ceb5a7f5" config-ref="HTTP_Listener_config" path="write"/>
+		<flow-ref doc:name="Location" doc:id="fb6e7206-6547-4912-b380-5f247d4d3ff1" name="location"/>
+		<http:request method="GET" doc:name="Request" doc:id="f8edf597-8817-4856-979f-ffc4edcac9ed" config-ref="HTTP_Request_configuration" path="/weather">
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"q" : vars.q
+}]]]></http:query-params>
+		</http:request>
+		<ee:transform doc:name="Document" doc:id="a0301e99-67bd-425d-b92b-46b66b23d874" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="document" ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<mongo:insert-document collectionName="weather" doc:name="Insert document" doc:id="72b83f59-e101-404e-8d28-32e95ab7a70d" config-ref="MongoDB_Config">
+			<repeatable-in-memory-stream />
+		</mongo:insert-document>
+		<ee:transform doc:name="ID and HashCode execution" doc:id="256d23b6-fda3-422c-a26b-9855f8a4519a">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	id: payload.'_id'.'\$oid',
+	hashCode: java!com::weather::Weather::getHashCode(vars.document),
+	content: payload
+}]]></ee:set-payload>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="fullPayload"><![CDATA[%dw 2.0
+output application/json
+---
+{
+	id: payload.'_id'.'\$oid',
+	hashCode: java!com::weather::Weather::getHashCode(vars.document),
+	content: payload
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="writingToOS" doc:id="c4ce03de-55de-4738-84b8-f371d95f21bd" name="writingToObjectStore"/>
+		<ee:transform doc:name="Final Payload" doc:id="f357bf25-b0f7-4eae-8549-ea896f0d748d" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+vars.fullPayload ]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="8a93f88f-49e4-49d1-9fa4-1398f779df0d" message="#[payload]"/>
+	</flow>
+	<flow name="combineAstronomy" doc:id="68feee4f-ed5b-481d-bc5f-68c23dbf8c5f" >
+		<http:listener doc:name="GET /comb" doc:id="71a2d10f-e78e-4136-925c-ca08c4df8225" config-ref="HTTP_Listener_config" path="comb"/>
+		<flow-ref doc:name="Location" doc:id="87dbb825-6691-4717-8f26-224f9cd351a6" name="location"/>
+		<scatter-gather doc:name="Scatter-Gather" doc:id="34d68446-c770-43e9-bbb7-249b70b1dfd0" >
+			<route >
+				<set-variable value="#[attributes.queryParams.'dt']" doc:name="Date" doc:id="26e48973-064f-4fcf-ac88-c69a66b62d18" variableName="dt"/>
+				<http:request method="GET" doc:name="GET / astronomy" doc:id="e889526c-2296-43f4-aef3-c6ec5d07c3d9" config-ref="HTTP_Request_configuration" path="/astronomy">
+					<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"dt" : vars.dt,
+	"q" : vars.q
+}]]]></http:query-params>
+				</http:request>
+				<ee:transform doc:name="Set VAR astronomy" doc:id="d04967b4-315a-4f2e-8efd-8ec953937a02" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="astronomy" ><![CDATA[%dw 2.0
+output application/json
+---
+payload.astronomy.astro]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</route>
+			<route >
+				<ee:transform doc:name="Query" doc:id="b8da05bf-25a8-42aa-b0dc-bdf9f74c042b">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{"location.name": vars.q as String}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="query" ><![CDATA[%dw 2.0
+output application/json
+---
+{"location.name": vars.q as String}]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+				<mongo:find-documents collectionName="weather" fields="location, current" doc:name="Find documents" doc:id="2572281b-37c1-49d4-a518-7835119f1ed5" config-ref="MongoDB_Config">
+					<mongo:query ><![CDATA[#[payload]]]></mongo:query>
+				</mongo:find-documents>
+				<ee:transform doc:name="Set VAR id, location and current" doc:id="8e235e15-806f-42d0-983c-72d48996793d" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload[0]]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="location" ><![CDATA[%dw 2.0
+output application/json
+---
+payload[0].location]]></ee:set-variable>
+						<ee:set-variable variableName="current" ><![CDATA[%dw 2.0
+output application/json
+---
+payload[0].current]]></ee:set-variable>
+						<ee:set-variable variableName="id" ><![CDATA[%dw 2.0
+output application/json
+---
+payload[0]."_id"."\$oid"]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</route>
+		</scatter-gather>
+		<ee:transform doc:name="Updated Object" doc:id="4306ef18-32e4-42a1-bd8c-6c5e7f17f0db" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	location: vars.location,
+	current: vars.current,
+	astronomy: vars.astronomy
+}]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="updated" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	location: vars.location,
+	current: vars.current,
+	astronomy: vars.astronomy
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<mongo:update-documents collectionName="weather" doc:name="Update documents" doc:id="a5d37930-631c-4c2c-bb3e-55a80bcc62be" config-ref="MongoDB_Config">
+			<mongo:query ><![CDATA[#[vars.query]]]></mongo:query>
+			<mongo:content-to-update ><![CDATA[#[astronomy: payload.astronomy]]]></mongo:content-to-update>
+		</mongo:update-documents>
+		<ee:transform doc:name="Post Update" doc:id="e71b8acd-d12d-4bfe-a3ef-802bfaaebdb6" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+var message = "The Document" ++ vars.id as String ++ " is successfully updated"
+var messageFail = "The Error occurred while updating the Document " ++ vars.id as String
+var updateResult = if(payload.modified > 0) message else messageFail
+---
+{
+	message: updateResult,
+	postUpdate: payload,
+	update: vars.updated
+}]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="postUpdated" ><![CDATA[%dw 2.0
+output application/json
+var message = "The Document " ++ vars.id as String ++ " is successfully updated"
+var messageFail = "The Error occurred while updating the Document " ++ vars.id as String
+var updateResult = if(payload.modified > 0) message else messageFail
+---
+{
+	message: updateResult,
+	update: vars.updated
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<mongo:find-documents collectionName="weather" fields="location, current, astronomy" doc:name="Find documents" doc:id="0f5c93a0-c1a9-4d5b-b962-b05577170ca6" config-ref="MongoDB_Config">
+			<mongo:query ><![CDATA[#[vars.query]]]></mongo:query>
+		</mongo:find-documents>
+		<ee:transform doc:name="Form Final Object" doc:id="acc06f3d-284a-4199-b4e5-eb7b7e82d73e" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	location: payload[0].location,
+	current: payload[0].current,
+	astronomy: payload[0].astronomy
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Response" doc:id="2f2fdb07-ae3d-4815-9758-81efa749419f" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	updateResult: vars.postUpdated,
+	updatedDocument: payload
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<email:send doc:name="Send" doc:id="ed3b1750-7f1f-4333-b014-1f3f25a4b5e8" config-ref="Email_SMTP" fromAddress="vitaliizhakun@gmail.com" subject="The Document in MongoDB was Updated">
+			<email:to-addresses >
+				<email:to-address value="vizarce@gmail.com" />
+			</email:to-addresses>
+			<email:body contentType="text/plain" encoding="UTF-8" >
+				<email:content ><![CDATA[#[%dw 2.0
+output text/plain --- "The Document " ++ vars.id as String ++ " about weather in " ++ vars.q ++ " was successfully updated."]]]></email:content>
+			</email:body>
+		</email:send>
+		<logger level="INFO" doc:name="Logger" doc:id="8d41be25-7f46-4cab-a9a2-fa09ea0b4680" message="#[payload]"/>
+	</flow>
+	<flow name="readFromDB" doc:id="8b08e884-4d84-4081-aebf-64c6837bdaab" >
+		<http:listener doc:name="GET /read" doc:id="7dae4d60-455c-4f7c-800d-76536f4845e1" config-ref="HTTP_Listener_config" path="read"/>
+		<flow-ref doc:name="Location" doc:id="e50d0bb5-6383-46ea-98fc-3b42fdf4fac1" name="location"/>
+		<ee:transform doc:name="Query" doc:id="caf50088-f4d0-4fe8-8a26-a4ad7379b1de" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{"location.name": vars.q as String}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<mongo:find-documents collectionName="weather" fields="location, current" doc:name="Find documents" doc:id="e7b66ac2-0514-413c-a877-f7d43e2c5a7b" config-ref="MongoDB_Config">
+			<mongo:query ><![CDATA[#[payload]]]></mongo:query>
+		</mongo:find-documents>
+		<ee:transform doc:name="Payload" doc:id="feed70f0-8673-4557-b5cb-48abd9105609" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="998fe548-b668-471b-9ab0-cc7701a32e30" message="#[payload]"/>
+	</flow>
+	<flow name="checkingHashCodeAndCompare" doc:id="6354f15c-aafa-4529-b6b2-9add3de58278" >
+		<scheduler doc:name="Scheduler" doc:id="b721e93e-8f04-4270-9094-56ba3fc61c01" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="1" timeUnit="MINUTES"/>
+			</scheduling-strategy>
+		</scheduler>
+		<mongo:find-documents collectionName="weather" fields="location, current, astronomy" doc:name="Find documents" doc:id="0e32a039-235b-4f32-aa1a-2a9c04c02c82" config-ref="MongoDB_Config">
+		</mongo:find-documents>
+		<batch:job jobName="operationsWithHashCode" doc:id="64088fa5-eb28-4d59-806c-eaa768aada46" >
+			<batch:process-records >
+				<batch:step name="hashCodeAssessmentAndCompare" doc:id="140f4114-b759-4da5-a067-dd9f2fad121e" >
+					<ee:transform doc:name="Set Document" doc:id="6e3d34f6-fa81-4e9c-8281-18eb9e5701c9" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	location: payload.location,
+	current: payload.current,
+	(astronomy: payload.astronomy) if (payload.astronomy != null)
+}]]></ee:set-payload>
+						</ee:message>
+						<ee:variables >
+							<ee:set-variable variableName="fullDoc" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	id: payload.'_id'.'\$oid',
+	location: payload.location,
+	current: payload.current,
+	(astronomy: payload.astronomy) if (payload.astronomy != null)
+}]]></ee:set-variable>
+						</ee:variables>
+					</ee:transform>
+					<ee:transform doc:name="HashCode Calculation" doc:id="a24bc212-510c-4ba6-8fdc-b61ab665225f" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	id: vars.fullDoc.id,
+	hashCodeCalculated: java!com::weather::Weather::getHashCode(payload),
+	document: payload
+}]]></ee:set-payload>
+						</ee:message>
+						<ee:variables >
+							<ee:set-variable variableName="hash" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	id: vars.fullDoc.id,
+	hashCodeCalculated: java!com::weather::Weather::getHashCode(payload),
+	document: payload
+}]]></ee:set-variable>
+						</ee:variables>
+					</ee:transform>
+					<os:retrieve doc:name="Retrieve Old HashCode" doc:id="ac24a8e2-0043-4bef-9823-7c8b81f23d83" key="#[payload.id]" objectStore="Object_store">
+						<os:default-value ><![CDATA[0]]></os:default-value>
+					</os:retrieve>
+					<ee:transform doc:name="Final HashCode Comparison" doc:id="c797b103-9a59-4193-8d1f-d39596b32749" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	id: vars.hash.id,
+	hashCodeCalculated: vars.hash.hashCodeCalculated,
+	hashCodePrevious: payload,
+	document: vars.hash.document
+}]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+					<ee:transform doc:name="Difference" doc:id="91efdd2a-0657-47c2-a33e-3f8b34116640" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	id: payload.id,
+	hashCodeCalculated: payload.hashCodeCalculated,
+	hashCodePrevious: payload.hashCodePrevious,
+	difference: payload.hashCodeCalculated == payload.hashCodePrevious,
+	document: payload.document
+}]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+				</batch:step>
+				<batch:step name="filterPayload" doc:id="69259e2c-0adf-4d55-a398-c7d96a04472c" acceptExpression="#[payload.difference == false]">
+					<ee:transform doc:name="Set Payload" doc:id="23ae4954-5c91-45c1-80d8-1c2f95e67d67" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload.document]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+					<batch:aggregator doc:name="Batch Aggregator" doc:id="3131035c-143d-4757-96c2-9ecab4ec1f29" streaming="true" preserveMimeTypes="true">
+						<foreach doc:name="For Each" doc:id="6d9e376e-8d37-4ed0-b80c-dc3442e6abc8" >
+							<vm:publish queueName="send" doc:name="Publish" doc:id="8a9cf534-fede-4835-9bf7-aa39126321e8" config-ref="VM_Config"/>
+						</foreach>
+					</batch:aggregator>
+				</batch:step>
+			</batch:process-records>
+		</batch:job>
+	</flow>
+	<flow name="weather-forecast-process-apiFlow1" doc:id="738c7911-6257-42d7-ba79-8569917d7e85" >
+		<vm:listener queueName="send" doc:name="Listener" doc:id="96f6bc1b-5449-48ec-9d9f-f7f742a3af5d" config-ref="VM_Config"/>
+		<ee:transform doc:name="Final Transformation" doc:id="9ddfc68b-8f45-4b52-b8b8-7394e398cad7" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+
+fun dayTime(x) = do {
+	var dayTime = 
+	if (x == 1)
+		"Day"
+	else
+		"Night"
+	---
+	dayTime
+}
+---
+{
+	code: payload.current.condition.code,
+	name: payload.location.name,
+	region: payload.location.region,
+	country: payload.location.country,
+	timeZone: payload.location.'tz_id',
+	localTime: payload.location.localtime,
+	lastUpdated: payload.current.'last_updated',
+	latitude: payload.location.lat,
+	longitude: payload.location.lon,
+	dayTime: dayTime(payload.current.'is_day'),
+	temperatureC: payload.current.'temp_c' as String ++ " C",
+	temperatureF: payload.current.'temp_f' as String ++ " F",
+	feelsLikeC: payload.current.'feelslike_c' as String ++ " C",
+	feelsLikeF: payload.current.'feelslike_f' as String ++ " F",
+	condition: upper(payload.current.condition.text),
+	windDirection: payload.current.'wind_dir',
+	windDegree: payload.current.'wind_degree' as String ++ " degrees",
+	windMPH: payload.current.'wind_mph' as String ++ " miles/hour",
+	windKPH: payload.current.'wind_kph' as String ++ " kilometers/hour",
+	windGustMPH: payload.current.'gust_mph' as String ++ " miles/hour",
+	windGustKPH: payload.current.'gust_kph' as String ++ " kilometers/hour",
+	pressureMB: payload.current.'pressure_mb' as String ++ " millibar",
+	pressureIN: payload.current.'pressure_in' as String ++ " inches of Mercury",
+	precipitationMM: payload.current.'precip_mm' as String ++ " mm",
+	precipitationIN: payload.current.'precip_in' as String ++ " inches",
+	visibilityKM: payload.current.'vis_km' as String ++ " km",
+	visibilityM: payload.current.'vis_miles' as String ++ " miles",
+	humidity: payload.current.humidity,
+	clouds: payload.current.cloud,
+	uv: payload.current.uv,
+	sunrise: payload.astronomy.sunrise,
+	sunset: payload.astronomy.sunset,
+	moonrise: payload.astronomy.moonrise,
+	moonset: payload.astronomy.moonset,
+	moonPhase: payload.astronomy.'moon_phase',
+	moonIllumination: payload.astronomy.'moon_illumination'
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="1a74ad89-96f0-4508-b371-b858bc9e6590" message="#[payload]"/>
+	</flow>
+	<flow name="forecast" doc:id="bb0e2f63-6f70-420a-a2c7-95d9e8858a0b" >
+		<http:listener doc:name="GET /forecast" doc:id="006397e2-49d8-4f58-81e1-568c271cd6e1" config-ref="HTTP_Listener_config" path="forecast"/>
+		<flow-ref doc:name="Location" doc:id="78c7e6f2-b599-4ba0-9098-ff444e6369eb" name="location"/>
+		<set-variable value="#[attributes.queryParams.'sorted']" doc:name="sorted" doc:id="f1dc117f-41a7-4097-bf9d-851307bc29aa" variableName="sorted"/>
+		<http:request method="GET" doc:name="GET / forecast" doc:id="d45c1cfa-a88e-4293-a74d-2085427623ae" config-ref="HTTP_Request_configuration" path="/forecast">
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"q" : vars.q,
+	"sorted" : vars.sorted
+}]]]></http:query-params>
+		</http:request>
+		<choice doc:name="Choice" doc:id="534e426d-f765-4ed4-b4cd-4095602dc39c" >
+			<when expression='#[vars.sorted == "current"]'>
+				<ee:transform doc:name="Transform Message" doc:id="0528f9be-a9e4-4516-b1df-d24597d623a8" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	location: payload.location.name,
+    region: payload.location.region,
+    country: payload.location.country,
+    latitude: payload.location.lat,
+    longitude: payload.location.lon,
+    timeZone: payload.location.'tz_id',
+    localtime: payload.location.localtime,
+    current: payload.current
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+			<when expression='#[vars.sorted == "tempc"]'>
+				<ee:transform doc:name="Transform Message" doc:id="be57e19d-5ba4-4079-8ba2-3d8fc19625e7" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{ 
+    location: payload.location.name,
+    region: payload.location.region,
+    country: payload.location.country,
+    latitude: payload.location.lat,
+    longitude: payload.location.lon,
+    timeZone: payload.location.'tz_id',
+    localtime: payload.location.localtime,
+    temperatureCelsius: {
+        ("00:00"): payload.forecast.forecastday.hour[0][0].'temp_c',
+        ("01:00"): payload.forecast.forecastday.hour[0][1].'temp_c',
+        ("02:00"): payload.forecast.forecastday.hour[0][2].'temp_c',
+        ("03:00"): payload.forecast.forecastday.hour[0][3].'temp_c',
+        ("04:00"): payload.forecast.forecastday.hour[0][4].'temp_c',
+        ("05:00"): payload.forecast.forecastday.hour[0][5].'temp_c',
+        ("06:00"): payload.forecast.forecastday.hour[0][6].'temp_c',
+        ("07:00"): payload.forecast.forecastday.hour[0][7].'temp_c',
+        ("08:00"): payload.forecast.forecastday.hour[0][8].'temp_c',
+        ("09:00"): payload.forecast.forecastday.hour[0][9].'temp_c',
+        ("10:00"): payload.forecast.forecastday.hour[0][10].'temp_c',
+        ("11:00"): payload.forecast.forecastday.hour[0][11].'temp_c',
+        ("12:00"): payload.forecast.forecastday.hour[0][12].'temp_c',
+        ("13:00"): payload.forecast.forecastday.hour[0][13].'temp_c',
+        ("14:00"): payload.forecast.forecastday.hour[0][14].'temp_c',
+        ("15:00"): payload.forecast.forecastday.hour[0][15].'temp_c',
+        ("16:00"): payload.forecast.forecastday.hour[0][16].'temp_c',
+        ("17:00"): payload.forecast.forecastday.hour[0][17].'temp_c',
+        ("18:00"): payload.forecast.forecastday.hour[0][18].'temp_c',
+        ("19:00"): payload.forecast.forecastday.hour[0][19].'temp_c',
+        ("20:00"): payload.forecast.forecastday.hour[0][20].'temp_c',
+        ("21:00"): payload.forecast.forecastday.hour[0][21].'temp_c',
+        ("22:00"): payload.forecast.forecastday.hour[0][22].'temp_c',
+        ("23:00"): payload.forecast.forecastday.hour[0][23].'temp_c'
+    }
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+			<when expression='#[vars.sorted == "condition"]'>
+				<ee:transform doc:name="Transform Message" doc:id="0c613f0f-89d2-4a32-a93d-8e6097c2fed4" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{ 
+    location: payload.location.name,
+    region: payload.location.region,
+    country: payload.location.country,
+    latitude: payload.location.lat,
+    longitude: payload.location.lon,
+    timeZone: payload.location.'tz_id',
+    localtime: payload.location.localtime,
+    condition: {
+        ("00:00"): payload.forecast.forecastday.hour[0][0].condition.text,
+        ("01:00"): payload.forecast.forecastday.hour[0][1].condition.text,
+        ("02:00"): payload.forecast.forecastday.hour[0][2].condition.text,
+        ("03:00"): payload.forecast.forecastday.hour[0][3].condition.text,
+        ("04:00"): payload.forecast.forecastday.hour[0][4].condition.text,
+        ("05:00"): payload.forecast.forecastday.hour[0][5].condition.text,
+        ("06:00"): payload.forecast.forecastday.hour[0][6].condition.text,
+        ("07:00"): payload.forecast.forecastday.hour[0][7].condition.text,
+        ("08:00"): payload.forecast.forecastday.hour[0][8].condition.text,
+        ("09:00"): payload.forecast.forecastday.hour[0][9].condition.text,
+        ("10:00"): payload.forecast.forecastday.hour[0][10].condition.text,
+        ("11:00"): payload.forecast.forecastday.hour[0][11].condition.text,
+        ("12:00"): payload.forecast.forecastday.hour[0][12].condition.text,
+        ("13:00"): payload.forecast.forecastday.hour[0][13].condition.text,
+        ("14:00"): payload.forecast.forecastday.hour[0][14].condition.text,
+        ("15:00"): payload.forecast.forecastday.hour[0][15].condition.text,
+        ("16:00"): payload.forecast.forecastday.hour[0][16].condition.text,
+        ("17:00"): payload.forecast.forecastday.hour[0][17].condition.text,
+        ("18:00"): payload.forecast.forecastday.hour[0][18].condition.text,
+        ("19:00"): payload.forecast.forecastday.hour[0][19].condition.text,
+        ("20:00"): payload.forecast.forecastday.hour[0][20].condition.text,
+        ("21:00"): payload.forecast.forecastday.hour[0][21].condition.text,
+        ("22:00"): payload.forecast.forecastday.hour[0][22].condition.text,
+        ("23:00"): payload.forecast.forecastday.hour[0][23].condition.text
+    }
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+			<when expression='#[vars.sorted == "cloud"]'>
+				<ee:transform doc:name="Transform Message" doc:id="2b7c2950-5148-4b48-96e0-95d337031684" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{ 
+    location: payload.location.name,
+    region: payload.location.region,
+    country: payload.location.country,
+    latitude: payload.location.lat,
+    longitude: payload.location.lon,
+    timeZone: payload.location.'tz_id',
+    localtime: payload.location.localtime,
+    clouds: {
+        ("00:00"): payload.forecast.forecastday.hour[0][0].cloud,
+        ("01:00"): payload.forecast.forecastday.hour[0][1].cloud,
+        ("02:00"): payload.forecast.forecastday.hour[0][2].cloud,
+        ("03:00"): payload.forecast.forecastday.hour[0][3].cloud,
+        ("04:00"): payload.forecast.forecastday.hour[0][4].cloud,
+        ("05:00"): payload.forecast.forecastday.hour[0][5].cloud,
+        ("06:00"): payload.forecast.forecastday.hour[0][6].cloud,
+        ("07:00"): payload.forecast.forecastday.hour[0][7].cloud,
+        ("08:00"): payload.forecast.forecastday.hour[0][8].cloud,
+        ("09:00"): payload.forecast.forecastday.hour[0][9].cloud,
+        ("10:00"): payload.forecast.forecastday.hour[0][10].cloud,
+        ("11:00"): payload.forecast.forecastday.hour[0][11].cloud,
+        ("12:00"): payload.forecast.forecastday.hour[0][12].cloud,
+        ("13:00"): payload.forecast.forecastday.hour[0][13].cloud,
+        ("14:00"): payload.forecast.forecastday.hour[0][14].cloud,
+        ("15:00"): payload.forecast.forecastday.hour[0][15].cloud,
+        ("16:00"): payload.forecast.forecastday.hour[0][16].cloud,
+        ("17:00"): payload.forecast.forecastday.hour[0][17].cloud,
+        ("18:00"): payload.forecast.forecastday.hour[0][18].cloud,
+        ("19:00"): payload.forecast.forecastday.hour[0][19].cloud,
+        ("20:00"): payload.forecast.forecastday.hour[0][20].cloud,
+        ("21:00"): payload.forecast.forecastday.hour[0][21].cloud,
+        ("22:00"): payload.forecast.forecastday.hour[0][22].cloud,
+        ("23:00"): payload.forecast.forecastday.hour[0][23].cloud
+    }
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+			<when expression='#[vars.sorted == "day"]'>
+				<ee:transform doc:name="Transform Message" doc:id="d746e693-cdfd-4c38-b0a5-fe1f99ee83dd" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	location: payload.location.name,
+    region: payload.location.region,
+    country: payload.location.country,
+    latitude: payload.location.lat,
+    longitude: payload.location.lon,
+    timeZone: payload.location.'tz_id',
+    localtime: payload.location.localtime,
+    day: payload.forecast.forecastday.day[0]
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Transform Message" doc:id="14923ed4-ce35-473e-9d59-04f8bbd144dd" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+		<ee:transform doc:name="Transform Message" doc:id="84fca30a-bd59-4ad5-9fce-d8e553e58a10" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="a789a607-4c69-43c0-8a10-106df3c4aaa0" message="#[payload]"/>
+	</flow>
+	<flow name="clearObjectStore" doc:id="442c38b2-76b0-47d8-bc17-59c122c24456" >
+		<http:listener doc:name="GET /clear" doc:id="45040895-a035-41ac-b9ad-7044b6106461" config-ref="HTTP_Listener_config" path="clear"/>
+		<os:clear doc:name="Clear" doc:id="bccf67b3-5f9a-47dc-aa22-e500704a9047" />
+		<ee:transform doc:name="Transform Message" doc:id="ac69f86a-15a1-4888-9a51-a17e4e8aa8a4" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	message: "ObjectStore was successfully cleared"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="eccd3de0-ad7e-4e27-9059-4d06264ae11b" message="#[payload]"/>
+	</flow>
+	<flow name="searchSports" doc:id="c4f00dfc-427d-422b-a593-7b05a78ad278" >
+		<http:listener doc:name="GET /search" doc:id="24a75b21-6942-4bff-88a7-8c1a53414ddf" config-ref="HTTP_Listener_config" path="search"/>
+		<flow-ref doc:name="Location" doc:id="f45061eb-bebe-4e54-b06e-bd741588c645" name="location"/>
+		<scatter-gather doc:name="Scatter-Gather" doc:id="09becd9d-4cdd-4034-8fed-79c64010236d" >
+			<route >
+				<http:request method="GET" doc:name="GET / search" doc:id="f31f9834-a5a5-4ab7-b6c6-f181f3f3e74b" config-ref="HTTP_Request_configuration" path="/search">
+			<http:query-params><![CDATA[#[output application/java
+---
+{
+	"q" : vars.q
+}]]]></http:query-params>
+		</http:request>
+				<ee:transform doc:name="Set VAR location, country and content" doc:id="7530c976-720c-49c4-9593-c9e1421fe308" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+var n = payload.*name
+var c = payload.country[0]
+
+var m = payload map ((item, index) -> {
+    id: item.id,
+    name: item.name,
+    region: item.region,
+    latitude: item.lat,
+    longitude: item.lon,
+    url: item.url
+    
+})
+---
+
+{
+    names: n,
+    country: c,
+    content: m
+}
+]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="loc" ><![CDATA[%dw 2.0
+output application/json
+---
+payload.*name]]></ee:set-variable>
+						<ee:set-variable variableName="country" ><![CDATA[%dw 2.0
+output application/json
+---
+payload.country[0]]]></ee:set-variable>
+						<ee:set-variable variableName="content" ><![CDATA[%dw 2.0
+output application/json
+---
+payload map ((item, index) -> {
+    id: item.id,
+    name: item.name,
+    region: item.region,
+    latitude: item.lat,
+    longitude: item.lon,
+    url: item.url
+})]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</route>
+			<route >
+				<http:request method="GET" doc:name="GET / sports" doc:id="40394ce1-d983-43f2-92ce-b500d5452816" config-ref="HTTP_Request_configuration" path="/sports">
+			<http:query-params><![CDATA[#[output application/java
+---
+{
+	"q" : vars.q
+}]]]></http:query-params>
+		</http:request>
+				<ee:transform doc:name="Set VAR sports" doc:id="5d798eec-8da8-421b-aad9-6b01b856941a" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="sports" ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</route>
+		</scatter-gather>
+		<ee:transform doc:name="Compose Event" doc:id="85cf3d56-72c5-4659-917c-0dd21eeaa3c1" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	locations: vars.loc,
+	country: vars.country,
+	content: vars.content,
+	sports: vars.sports
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="93ec3351-fffa-4b69-8a90-1a40f0739851" message="#[payload]"/>
+	</flow>
+</mule>

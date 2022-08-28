@@ -116,8 +116,30 @@ output application/json
 	chronology: now()
 }]]></ee:set-payload>
 					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="httpStatus" ><![CDATA[200]]></ee:set-variable>
+					</ee:variables>
 				</ee:transform>
 			</on-error-continue>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="d814f7db-d5bd-4c9a-82d4-69ca41f7c304" type="MONGO:PERMISSIONS_DENIED">
+				<ee:transform doc:name="Mongo DB: Permission Denied" doc:id="bde28974-069c-442c-800f-947974a9de2b" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	message: "You don't have an appropriate permissions",
+	errorType: error.errorType.namespace as String ++ ":" ++ error.errorType.identifier as String,
+	description: error.description,
+	cause: error.cause.message,
+	chronology: now()
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="httpStatus" ><![CDATA[400]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</on-error-propagate>
 		</error-handler>
 	</flow>
 	<sub-flow name="writingToObjectStore" doc:id="63b0bcc2-f430-4a08-a60d-3d7b02ea48b1" >

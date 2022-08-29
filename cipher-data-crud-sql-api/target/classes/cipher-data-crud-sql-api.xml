@@ -500,6 +500,25 @@ output application/java
 					</ee:variables>
 				</ee:transform>
 			</on-error-propagate>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="b03c3226-4a12-4558-af0d-2cab8c29a6ac" type="FILE:ILLEGAL_PATH">
+				<ee:transform doc:name="400 - FILE PATN ERROR" doc:id="79084f31-5163-499e-b0a0-2e411630a12c" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	statusCode: 400,
+	message: "The Data was not written in the File due to the File Path wrong parameters.",
+	errorType: error.errorType.identifier as String ++ ":" ++ error.errorType.namespace as String,
+	description: error.description,
+	chronology: now()
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="httpStatus" ><![CDATA[400]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</on-error-propagate>
 		</error-handler>
 	</flow>
 	<flow name="read-decipher-data-apiFlow" doc:id="2362ede0-ae75-4abc-b55a-5749ad270460" >

@@ -120,6 +120,10 @@ output application/json
 	<flow name="make-table-apiFlow" doc:id="a0e1ab01-0735-459d-872b-bce2bab1b70f" >
 		<http:listener doc:name="GET /table" doc:id="38f50c0f-5475-4e1b-8e66-2f8ce3d74122" config-ref="HTTP_Listener_config" path="table"/>
 		<set-variable value='#[attributes.queryParams.fname as String default "connectors-description.csv"]' doc:name="FileName" doc:id="d32ae502-4719-4581-8979-64449de66c82" variableName="fname"/>
+		<db:execute-script doc:name="Drop Tables" doc:id="3b1c6aba-8953-41ff-bda1-4efe386eea36" config-ref="Database_Config">
+			<db:sql ><![CDATA[DROP TABLE IF EXISTS connectors_types;
+DROP TABLE IF EXISTS connectors;]]></db:sql>
+		</db:execute-script>
 		<validation:is-not-null doc:name="FileName Is not null" doc:id="8b3ee2f7-6f57-4871-95ac-b9e25ee92307" config-ref="Validation_Config" value="#[vars.fname]" message="The Query Parameters fname should not be empty. Please, provide the proper values."/>
 		<flow-ref doc:name="payload" doc:id="4ef47732-b5f3-4aa6-84bf-3d9491a3740d" name="payload"/>
 		<scatter-gather doc:name="Fields and Values Lists Creation" doc:id="27d64c51-7833-4c5e-b50e-7ddb39cb50e5" >
@@ -452,13 +456,22 @@ payload]]></ee:set-payload>
 		<db:update doc:name="Update Record in the Table" doc:id="5f384099-1d2f-4f44-b18c-9e0fc4192032" config-ref="Database_Config">
 			<db:sql ><![CDATA[#[payload]]]></db:sql>
 		</db:update>
-		<db:select doc:name="Select Updated Object" doc:id="dacee4b0-2c80-421e-a81f-c235e20a43a7" config-ref="Database_Config">
-			<db:sql ><![CDATA[SELECT * FROM connectors_info
-WHERE unID = 3]]></db:sql>
-		</db:select>
-		<ee:transform doc:name="Transformation" doc:id="76a7101f-883c-453b-b612-7729e7d06d30" >
+		<ee:transform doc:name="Response" doc:id="11b4cd52-2215-49e6-aa91-a11bb023b8da" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	message: "The Record was successfully Updated"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<error-handler ref="default-Error-Handler" />
+	</flow>
+	<sub-flow name="cypher-data-crud-sql-apiSub_Flow" doc:id="fb3a2940-f917-443d-a560-5f4bfdd9cce2" >
+		<ee:transform doc:name="Transformation" doc:id="76a7101f-883c-453b-b612-7729e7d06d30">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
 payload map (o) -> {
@@ -477,8 +490,8 @@ payload map (o) -> {
 	details: o.text
 }]]></ee:set-payload>
 			</ee:message>
-			<ee:variables >
-				<ee:set-variable variableName="response" ><![CDATA[%dw 2.0
+			<ee:variables>
+				<ee:set-variable variableName="response"><![CDATA[%dw 2.0
 output application/json
 ---
 payload map (o) -> {
@@ -498,19 +511,7 @@ payload map (o) -> {
 }]]></ee:set-variable>
 			</ee:variables>
 		</ee:transform>
-		<ee:transform doc:name="Response" doc:id="11b4cd52-2215-49e6-aa91-a11bb023b8da" >
-			<ee:message >
-				<ee:set-payload ><![CDATA[%dw 2.0
-output application/json
----
-{
-	message: "The Record was successfully Updated",
-	record: payload[0]
-}]]></ee:set-payload>
-			</ee:message>
-		</ee:transform>
-		<error-handler ref="default-Error-Handler" />
-	</flow>
+	</sub-flow>
 	<error-handler name="default-Error-Handler" doc:id="087ecf1e-0225-4fe2-b252-ea23c4bf7432" >
 					<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="99c619bb-3258-4580-b698-18c5d64b23f8" type="JAVA:ARGUMENTS_MISMATCH, JAVA:CLASS_NOT_FOUND, JAVA:INVOCATION, JAVA:NO_SUCH_METHOD">
 				<ee:transform doc:name="400" doc:id="e1947e61-d4f3-4d1d-8822-69f3f4cca0ff" >

@@ -1,0 +1,658 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:java="http://www.mulesoft.org/schema/mule/java" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="49a4ce0d-8bd5-4584-a976-d353037e017c" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="328d0608-2939-49df-ae02-50175437fba3" >
+		<db:my-sql-connection host="localhost" port="3306" user="mule" password="mule" database="accounts" />
+	</db:config>
+	<file:config name="File_Config" doc:name="File Config" doc:id="1d69c514-b274-4c02-a7e8-99db41817205" >
+		<file:connection workingDir="C:\Users\vi\Desktop\CRUD\main" />
+	</file:config>
+	<validation:config name="Validation_Config" doc:name="Validation Config" doc:id="7e653546-ddfa-42d0-b4cf-5249a9e0351f" />
+	<sub-flow name="data" doc:id="6d24056b-5e0e-45c5-97e5-7c1625eae4cb" >
+		<set-payload value='#[[&#10;    {&#10;        "id": "A14",&#10;        "Час": "14.06.2022 18:55",&#10;        "ПовнеIмяKористувача": "Жакун Ірина",&#10;        "СтосуєтьсяKористувача": "-",&#10;        "КонтекстПодії": "Файл: Information for students about the requirements and terms of final control of summer medical practice",&#10;        "Компонент": "Ядро системи",&#10;        "НазваПодії": "Створено модуль курсу",&#10;        "Опис": "The user with id 388 created the resource activity with course module id 96808.",&#10;        "Джерело": "web",&#10;        "IPадреса": "45.89.88.219",&#10;        "mongoID": "62a8b9699851cd43b640f922"&#10;    },&#10;    {&#10;        "id": "Z52",&#10;        "Час": "09.06.2022 11:54",&#10;        "ПовнеIмяKористувача": "Бучко Ольга",&#10;        "СтосуєтьсяКористувача": "-",&#10;        "КонтекстПодії": "Файл: Tasks for control",&#10;        "Компонент": "Ядро системи",&#10;        "НазваПодії": "Створено модуль курсу",&#10;        "Опис": "The user with id 1646 created the resource activity with course module id 96769.",&#10;        "Джерело": "web",&#10;        "IPадреса": "195.80.141.239",&#10;        "mongoID": "62a8b96b9851cd43b640f948"&#10;    },&#10;    {&#10;        "id": "X58",&#10;        "Час": "09.06.2022 11:52",&#10;        "ПовнеIмяKористувача": "Бучко Ольга",&#10;        "СтосуєтьсяКористувача": "-",&#10;        "КонтекстПодії": "Файл: Algorithms for performing practical skills",&#10;        "Компонент": "Ядро системи",&#10;        "НазваПодії": "Створено модуль курсу",&#10;        "Опис": "The user with id 1646 created the resource activity with course module id 96768.",&#10;        "Джерело": "web",&#10;        "IPадреса": "195.80.141.239",&#10;        "mongoID": "62a8b96b9851cd43b640f94e"&#10;    },&#10;    {&#10;        "id": "C65",&#10;        "Час": "09.06.2022 11:50",&#10;        "ПовнеIмяKористувача": "Бучко Ольга",&#10;        "СтосуєтьсяКористувача": "-",&#10;        "КонтекстПодії": "Файл: The syllabus for summer medical clinical practice",&#10;        "Компонент": "Ядро системи",&#10;        "НазваПодії": "Створено модуль курсу",&#10;        "Опис": "The user with id 1646 created the resource activity with course module id 96767.",&#10;        "Джерело": "web",&#10;        "IPадреса": "195.80.141.239",&#10;        "mongoID": "62a8b96c9851cd43b640f955"&#10;    },&#10;    {&#10;        "id": "V71",&#10;        "Час": "09.06.2022 11:49",&#10;        "ПовнеIмяKористувача": "Бучко Ольга",&#10;        "СтосуєтьсяКористувача": "-",&#10;        "КонтекстПодії": "Файл: Recommendations and Guides for summer medical clinical practice",&#10;        "Компонент": "Ядро системи",&#10;        "НазваПодії": "Створено модуль курсу",&#10;        "Опис": "The user with id 1646 created the resource activity with course module id 96766.",&#10;        "Джерело": "web",&#10;        "IPадреса": "195.80.141.239",&#10;        "mongoID": "62a8b96c9851cd43b640f95b"&#10;    },&#10;    {&#10;        "id": "M77",&#10;        "Час": "09.06.2022 11:47",&#10;        "ПовнеIмяKористувача": "Бучко Ольга",&#10;        "СтосуєтьсяКористувача": "-",&#10;        "КонтекстПодії": "Файл: Diary of summer medical clinical practice",&#10;        "Компонент": "Ядро системи",&#10;        "НазваПодії": "Створено модуль курсу",&#10;        "Опис": "The user with id 1646 created the resource activity with course module id 96765.",&#10;        "Джерело": "web",&#10;        "IPадреса": "195.80.141.239",&#10;        "mongoID": "62a8b96c9851cd43b640f961"&#10;    },&#10;    {&#10;        "id": "K83",&#10;        "Час": "09.06.2022 11:45",&#10;        "ПовнеIмяKористувача": "Бучко Ольга",&#10;        "СтосуєтьсяКористувача": "-",&#10;        "КонтекстПодії": "Файл: Worcing curriculum for the course",&#10;        "Компонент": "Ядро системи",&#10;        "НазваПодії": "Створено модуль курсу",&#10;        "Опис": "The user with id 1646 created the resource activity with course module id 96764.",&#10;        "Джерело": "web",&#10;        "IPадреса": "195.80.141.239",&#10;        "mongoID": "62a8b96d9851cd43b640f967"&#10;    },&#10;    {&#10;        "id": "P96",&#10;        "Час": "09.06.2022 11:42",&#10;        "ПовнеIмяKористувача": "Бучко Ольга",&#10;        "СтосуєтьсяКористувача": "-",&#10;        "КонтекстПодії": "Файл:  Curriculum praktice",&#10;        "Компонент": "Ядро системи",&#10;        "НазваПодії": "Створено модуль курсу",&#10;        "Опис": "The user with id 1646 created the resource activity with course module id 96763.",&#10;        "Джерело": "web",&#10;        "IPадреса": "195.80.141.239",&#10;        "mongoID": "62a8b96d9851cd43b640f974"&#10;    },&#10;    {&#10;        "id": "Y123",&#10;        "Час": "08.06.2022 17:43",&#10;        "ПовнеIмяKористувача": "Жакун Ірина",&#10;        "СтосуєтьсяКористувача": "-",&#10;        "КонтекстПодії": "Інші",&#10;        "Компонент": "Ядро системи",&#10;        "НазваПодії": "Створено модуль курсу",&#10;        "Опис": "The user with id 388 created the resource activity with course module id 96749.",&#10;        "Джерело": "web",&#10;        "IPадреса": "45.89.88.219",&#10;        "mongoID": "62a8b96e9851cd43b640f98f"&#10;    },&#10;    {&#10;        "id": "U126",&#10;        "Час": "08.06.2022 17:42",&#10;        "ПовнеIмяKористувача": "Жакун Ірина",&#10;        "СтосуєтьсяКористувача": "-",&#10;        "КонтекстПодії": "Інші",&#10;        "Компонент": "Ядро системи",&#10;        "НазваПодії": "Створено модуль курсу",&#10;        "Опис": "The user with id 388 created the resource activity with course module id 96748.",&#10;        "Джерело": "web",&#10;        "IPадреса": "45.89.88.219",&#10;        "mongoID": "62a8b96f9851cd43b640f992"&#10;    },&#10;    {&#10;        "id": "Y146",&#10;        "Час": "07.06.2022 14:47",&#10;        "ПовнеIмяKористувача": "Жакун Ірина",&#10;        "СтосуєтьсяКористувача": "-",&#10;        "КонтекстПодії": "Інші",&#10;        "Компонент": "Ядро системи",&#10;        "НазваПодії": "Створено модуль курсу",&#10;        "Опис": "The user with id 388 created the resource activity with course module id 96729.",&#10;        "Джерело": "web",&#10;        "IPадреса": "45.89.88.219",&#10;        "mongoID": "62a8b96f9851cd43b640f9a6"&#10;    },&#10;    {&#10;        "id": "G149",&#10;        "Час": "07.06.2022 14:46",&#10;        "ПовнеIмяKористувача": "Жакун Ірина",&#10;        "СтосуєтьсяКористувача": "-",&#10;        "КонтекстПодії": "Інші",&#10;        "Компонент": "Ядро системи",&#10;        "НазваПодії": "Створено модуль курсу",&#10;        "Опис": "The user with id 388 created the resource activity with course module id 96728.",&#10;        "Джерело": "web",&#10;        "IPадреса": "45.89.88.219",&#10;        "mongoID": "62a8b9709851cd43b640f9a9"&#10;    },&#10;    {&#10;        "id": "D155",&#10;        "Час": "07.06.2022 14:43",&#10;        "ПовнеIмяKористувача": "Жакун Ірина",&#10;        "СтосуєтьсяКористувача": "-",&#10;        "КонтекстПодії": "Інші",&#10;        "Компонент": "Ядро системи",&#10;        "НазваПодії": "Створено модуль курсу",&#10;        "Опис": "The user with id 388 created the resource activity with course module id 96727.",&#10;        "Джерело": "web",&#10;        "IPадреса": "45.89.88.219",&#10;        "mongoID": "62a8b9709851cd43b640f9af"&#10;    },&#10;    {&#10;        "id": "A162",&#10;        "Час": "07.06.2022 14:41",&#10;        "ПовнеIмяKористувача": "Жакун Ірина",&#10;        "СтосуєтьсяКористувача": "-",&#10;        "КонтекстПодії": "Інші",&#10;        "Компонент": "Ядро системи",&#10;        "НазваПодії": "Створено модуль курсу",&#10;        "Опис": "The user with id 388 created the resource activity with course module id 96726.",&#10;        "Джерело": "web",&#10;        "IPадреса": "45.89.88.219",&#10;        "mongoID": "62a8b9709851cd43b640f9b6"&#10;    },&#10;    {&#10;        "id": "A172",&#10;        "Час": "07.06.2022 14:37",&#10;        "ПовнеIмяKористувача": "Жакун Ірина",&#10;        "СтосуєтьсяКористувача": "-",&#10;        "КонтекстПодії": "Файл: Contact information",&#10;        "Компонент": "Ядро системи",&#10;        "НазваПодії": "Створено модуль курсу",&#10;        "Опис": "The user with id 388 created the resource activity with course module id 96725.",&#10;        "Джерело": "web",&#10;        "IPадреса": "45.89.88.219",&#10;        "mongoID": "62a8b9719851cd43b640f9c0"&#10;    }&#10;]]' doc:name="Set Payload" doc:id="fd95a06d-d34c-4ffe-bdf1-9855590d0eab" />
+	</sub-flow>
+	<sub-flow name="new-payload" doc:id="50c09a40-8a79-4cc9-9e52-5fd4f0bdfa53" >
+		<file:read doc:name="Read Data from CSV" doc:id="e9f46978-c0ca-48f3-aaf5-e875adb7549d" config-ref="File_Config" path="customers-details.csv" outputMimeType='application/csv; header=true; separator=","'/>
+		<ee:transform doc:name="to JSON" doc:id="8bca419a-124c-4f9a-9bab-a2754f317865">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload map(o) -> {
+	time: o."﻿Час",
+	fullUserName: o."Повне ім'я користувача",
+	linkedToUser: o."Стосується користувача",
+	actionContext: o."Контекст події",
+	component: o."Компонент",
+	actionName: o."Назва події",
+	description: o."Опис",
+	source: o."Джерело",
+	ipAddress: o."IP-адреса"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</sub-flow>
+	<sub-flow name="payload" doc:id="8dd457f1-860c-4712-8fe4-15fa547ad1e2">
+		<set-payload value='#[%dw 2.0
+output application/json
+---
+[
+	{
+		id: "1234785",
+		connector: "HTTP Listener",
+		category: "HTTP",
+		version: "1.5",
+		origin: "Mulesoft",
+		program: "Anypoint Studio",
+		dtStarted: "2018-05-05 07:55:05",
+		dtUpdated: "1/10/2019",
+		timeUpdated: "00:55:35",
+		used: "85 %",
+		cost: "385.59 \$",
+		text: "The connector can be set up to accept any request, or to only accept requests that are addressed to a very specific URI. You can choose what methods the connector can accept (GET, POST, etc). The request body is passed on to the next element you place in your flow as the message payload of a Mule Message, meanwhile headers, query parameters, URI parameters and other elements of the HTTP Request are passed on as inbound properties."
+	},
+	{
+		id: "7489652",
+		connector: "HTTP Listener",
+		category: "HTTP",
+		version: "1.6",
+		origin: "Mulesoft",
+		program: "Anypoint Studio",
+		dtStarted: "2020-11-25 12:15:55",
+		dtUpdated: "7/17/2021",
+		timeUpdated: "8:55:25 PM",
+		used: "90 %",
+		cost: "405.59 \$",
+		text: "The connector can also be configured to provide response codes and clarifications, both for success and error outcomes, allowing you to present different error messages depending on the case."
+	},
+	{
+		id: "5368773",
+		connector: "HTTP Listener",
+		category: "HTTP",
+		version: "1.7",
+		origin: "Mulesoft",
+		program: "Anypoint Studio",
+		dtStarted: "2021-07-11 7:15",
+		dtUpdated: "2022-09-15",
+		timeUpdated: "11:55 am",
+		used: "95 %",
+		cost: "555.59 \$",
+		text: "The use of global configuration elements becomes specially useful when having multiple connectors that must use the same settings, as the server connection must only be defined once."
+	},
+	{
+		id: "2587413",
+		connector: "Zoom Connector",
+		category: "Zoom",
+		version: "1.1",
+		origin: "Mulesoft",
+		program: "Anypoint Studio",
+		dtStarted: "2021-11-10 9:55",
+		dtUpdated: "3/11/2021",
+		timeUpdated: "12:55:35",
+		used: "37 %",
+		cost: "459.59 \$",
+		text: "Anypoint Connector for Zoom (Zoom Connector) enables you to access the Zoom API. For information about compatibility and fixed issues, refer to the Zoom Connector Release Notes."
+	},
+	{
+		id: "2587469",
+		connector: "X12 EDI Connector",
+		category: "X12 EDI",
+		version: "1.5",
+		origin: "Mulesoft",
+		program: "Anypoint Studio",
+		dtStarted: "2020-12-01 09:25:55",
+		dtUpdated: "9/12/2021",
+		timeUpdated: "11:55 PM",
+		used: "12 %",
+		cost: "777.59 \$",
+		text: "Anypoint Connector for X12 EDI (X12 EDI Connector) enables you to convert X12 messages to and from DataWeave-compatible representations by using lists and maps. All of the schema definitions you need for supported X12 standard transaction sets are included. For complete information about schemas, see X12 EDI Schema Language Reference."
+	},
+	{
+		id: "2541789",
+		connector: "Validation Module",
+		category: "Validation",
+		version: "2.0",
+		origin: "Mulesoft",
+		program: "Anypoint Studio",
+		dtStarted: "2021-11-21 11:15",
+		dtUpdated: "7/5/2022",
+		timeUpdated: "10:15 AM",
+		used: "55 %",
+		cost: "295.59 \$",
+		text: "The Validation module verifies that the content of a message in a Mule flow matches specific criteria. If a message does not meet the defined validation criteria, the validation fails and returns a validation error, such as VALIDATION:INVALID_URL, which is a ValidationException. Based on the specific data you are validating, you can customize the exception message that is displayed in the logs."
+	},
+	{
+		id: "2587416",
+		connector: "DataGraph Module",
+		category: "DataGraph",
+		version: "2.1",
+		origin: "Mulesoft",
+		program: "Anypoint Studio",
+		dtStarted: "2021-05-20 12:15",
+		dtUpdated: "5/5/2022",
+		timeUpdated: "9:25 pm",
+		used: "15 %",
+		cost: "300.59 \$",
+		text: "Every time you add a new API to your application network, Anypoint Platform stores it as a graph of metadata. Anypoint DataGraph enables you to connect those graphs into one unified schema that runs as a single SaaS GraphQL endpoint and contains and links all of the fields defined within all of your APIs. As a result, you can query across the underlying APIs without needing to understand all of the relationships or specific capabilities that exist within them."
+	}
+]]' doc:name="Set Payload" doc:id="b0da013a-acb3-488b-b5d7-e5ce1f885f94" />
+	</sub-flow>
+	<flow name="make-table-apiFlow" doc:id="a0e1ab01-0735-459d-872b-bce2bab1b70f" >
+		<http:listener doc:name="GET /table" doc:id="38f50c0f-5475-4e1b-8e66-2f8ce3d74122" config-ref="HTTP_Listener_config" path="table"/>
+		<set-variable value='#[attributes.queryParams.fname as String default "connectors-description.csv"]' doc:name="FileName" doc:id="d32ae502-4719-4581-8979-64449de66c82" variableName="fname"/>
+		<validation:is-null doc:name="FileName Is null" doc:id="de931064-55b3-4985-bea6-6b5b03ec71ce" config-ref="Validation_Config" value="#[vars.fname]" message="The Query Parameters fname should not be empty. Please, provide the proper values."/>
+		<flow-ref doc:name="payload" doc:id="4ef47732-b5f3-4aa6-84bf-3d9491a3740d" name="payload"/>
+		<scatter-gather doc:name="Fields and Values Lists Creation" doc:id="27d64c51-7833-4c5e-b50e-7ddb39cb50e5" >
+			<route >
+				<ee:transform doc:name="Fields Variable" doc:id="ef3aa10e-0a30-4990-b6de-96633b128669" >
+					<ee:message >
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="f" ><![CDATA[%dw 2.0
+output application/java
+---
+keysOf(payload[0])]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</route>
+			<route >
+				<ee:transform doc:name="Values Variable" doc:id="7a4b37ca-a567-4966-8c91-2c3163b150e9" >
+					<ee:message >
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="v" ><![CDATA[%dw 2.0
+output application/java
+---
+valuesOf(payload[0])]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</route>
+		</scatter-gather>
+		<java:invoke-static method="createSQLDDLQuery(java.util.ArrayList,java.util.ArrayList,java.lang.String)" doc:name="Create DDL Query" doc:id="3c0be616-e1e6-4ef1-b2bd-053d236b4db7" class="string.util.SQLQueryMaker">
+			<java:args ><![CDATA[#[{"arg0": vars.f, "arg1": vars.v, "arg2": vars.fname}]]]></java:args>
+		</java:invoke-static>
+		<ee:transform doc:name="Query" doc:id="acdcb389-6abb-4be1-a402-82fa1871c0ba" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output text/plain
+---
+payload]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="query" ><![CDATA[output text/plain
+---
+payload]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<db:execute-ddl doc:name="Create Table" doc:id="7ba0f9f6-eeec-4b05-a9b7-04d511df7528" config-ref="Database_Config">
+			<error-mapping sourceType="DB:CONNECTIVITY" targetType="APP:DB_CONNECTION" />
+			<db:sql ><![CDATA[#[payload]]]></db:sql>
+		</db:execute-ddl>
+		<ee:transform doc:name="Response" doc:id="b048b8ff-d133-4455-be28-6357e8864d85" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	message: "The Table was successfully created",
+	details: payload,
+	query: vars.query
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="fe0abd9d-39b2-490b-9400-6007a70d7cae" type="JAVA:ARGUMENTS_MISMATCH, JAVA:CLASS_NOT_FOUND, JAVA:INVOCATION, JAVA:NO_SUCH_METHOD">
+				<ee:transform doc:name="400" doc:id="aed61221-d789-43a5-b036-ffeb6aed1a79" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	sptatusCode: 400,
+	message: "There is a problem with Query Creation occurred. Check your input arguments",
+	errorType: error.errorType.identifier as String ++ ":" ++ error.errorType.namespace as String,
+	description: error.description,
+	chronology: now()
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="httpStatus" ><![CDATA[400]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</on-error-propagate>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="d5eeaa7f-fd5d-4b9a-b1e4-3a32187eb254" type="DB:BAD_SQL_SYNTAX, DB:QUERY_EXECUTION">
+				<ee:transform doc:name="400 - SQL QUERY ERROR" doc:id="98117470-3bcc-4d68-ba39-cdf5f3cad9ca" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	sptatusCode: 400,
+	message: "There is a problem with Query syntaz or execution. Check your input arguments",
+	errorType: error.errorType.identifier as String ++ ":" ++ error.errorType.namespace as String,
+	description: error.description,
+	chronology: now()
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="httpStatus" ><![CDATA[400]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</on-error-propagate>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="13d5d06a-78ce-4aa0-b62b-16c3d94c21de" type="APP:DB_CONNECTION">
+				<ee:transform doc:name="501 - DB CONNECTION ERROR" doc:id="0e96f156-0c3d-4d29-bf3d-8bc472581f4c" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	sptatusCode: 501,
+	message: "There is a problem with the connection with Database. Chek your input parameters or try later",
+	errorType: error.errorType.identifier as String ++ ":" ++ error.errorType.namespace as String,
+	description: error.description,
+	chronology: now()
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="httpStatus" ><![CDATA[501]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</on-error-propagate>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="5008c3a8-8f43-4dad-ba2c-c7bdff55f2cb" type="VALIDATION:NOT_NULL">
+				<ee:transform doc:name="400 QP is NULL" doc:id="492e1d92-bc2e-49ef-9959-78ebb87bf7ce" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	statusCode: 400,
+	message: "Bad Request. The File Name query parameters have to be provided.",
+	errorType: error.errorType.identifier as String ++ ":" ++ error.errorType.namespace as String,
+	description: error.description,
+	chronology: now()
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="httpStatus" ><![CDATA[400]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+	<flow name="insert-cipher-data-apiFlow" doc:id="ef1bf1e1-e1d4-436a-b43f-169792fcfffd" >
+		<http:listener doc:name="GET /insert" doc:id="1f1dcbca-6c56-44d7-98da-b73cfb0f1543" config-ref="HTTP_Listener_config" path="insert"/>
+		<set-variable value='#[attributes.queryParams.fname as String default "connectors-description.csv"]' doc:name="FileName" doc:id="f34fc88c-cd46-405e-9c2b-0de2b8aa70af" variableName="fname" />
+		<flow-ref doc:name="payload" doc:id="b7ef229b-061d-47cc-8b72-d3044e128d95" name="payload"/>
+		<ee:transform doc:name="Fields Variable" doc:id="b171310a-4a0a-4a9e-b47c-5684cecea9af" >
+			<ee:message />
+			<ee:variables >
+				<ee:set-variable variableName="f" ><![CDATA[%dw 2.0
+output application/java
+---
+keysOf(payload[0])]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<set-variable value="#[[]]" doc:name="Result" doc:id="7d960a9d-eb4b-473e-8b62-4e8cba6028c8" variableName="res"/>
+		<foreach doc:name="For Each" doc:id="7037d3b3-dd77-4fb6-b903-ab65f98f3597" >
+			<ee:transform doc:name="toBase64" doc:id="e8ca0016-497c-45ad-8780-1b970b5733b3" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+import toBase64 from dw::core::Binaries
+output application/java
+---
+//payload mapObject(v, k, idx) -> {
+	//(k): toBase64(write(v, "application/json")) 
+//}
+{
+	id: payload.id,
+	connector: toBase64(write(payload.connector, "application/json")),
+	category: payload.category,
+	version: payload.version,
+	origin: toBase64(write(payload.origin, "application/json")),
+	program: toBase64(write(payload.program, "application/json")),
+	dtStarted: payload.dtStarted,
+	dtUpdated: payload.dtUpdated,
+	timeUpdated: payload.timeUpdated,
+	used: payload.used,
+	cost: payload.cost,
+	text: toBase64(write(payload.text, "application/json"))
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<ee:transform doc:name="Values Variable" doc:id="88f00aed-667a-42dc-9ff8-55b1b6268ded" >
+				<ee:message />
+				<ee:variables >
+					<ee:set-variable variableName="v" ><![CDATA[%dw 2.0
+output application/java
+---
+valuesOf(payload)]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<java:invoke-static method="createSQLInsertQuery(java.util.ArrayList,java.util.ArrayList,java.lang.String)" doc:name="Create Insert Query" doc:id="c35f2041-67ba-4fcc-b74e-458dee84b6a2" class="string.util.SQLQueryMaker">
+				<java:args ><![CDATA[#[{"arg0": vars.f, "arg1": vars.v, "arg2": vars.fname}]]]></java:args>
+			</java:invoke-static>
+			<ee:transform doc:name="Query" doc:id="fe1bf5c7-e0de-4648-ab9d-581ea7946c6a" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output text/plain
+---
+payload]]></ee:set-payload>
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="query" ><![CDATA[output text/plain
+---
+payload]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<db:insert doc:name="Insert Object Data" doc:id="aec50c24-fd1a-48bc-a07e-e2fadfd57375" config-ref="Database_Config">
+				<db:sql ><![CDATA[#[payload]]]></db:sql>
+			</db:insert>
+			<ee:transform doc:name="Result" doc:id="efa6a1b9-ba1f-43aa-9e2c-5c73839f7d4f" >
+				<ee:message >
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="res" ><![CDATA[%dw 2.0
+output application/json
+---
+vars.res + payload]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+		</foreach>
+		<ee:transform doc:name="Response" doc:id="533f77aa-be4d-46ab-8380-4602d757d4af" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	message: "Data was Inserted in the Table",
+	affectedRows: sizeOf(vars.res.*affectedRows)
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="select-data-apiFlow" doc:id="6faae8c4-7d00-4733-b699-83e7be748e22" >
+		<http:listener doc:name="GET /select" doc:id="64c1152c-8832-4a44-81fd-4487d9d6514a" config-ref="HTTP_Listener_config" path="select"/>
+		<set-variable value='#[attributes.queryParams.fname as String default "connectors-description.csv"]' doc:name="FileName" doc:id="6b5150f5-2b7a-4533-9073-8f26a6ba2cc9" variableName="fname" />
+		<java:invoke-static method="checkTableName(java.lang.String)" doc:name="TableName" doc:id="a5cb50d8-c185-4bf2-975e-d7e084bc9f79" class="string.util.SQLQueryMaker" target="table">
+			<java:args ><![CDATA[#[{"arg0": vars.fname}]]]></java:args>
+		</java:invoke-static>
+		<ee:transform doc:name="Query" doc:id="0d26f108-554d-44fa-bde2-d7cc3d0193cc" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output text/plain
+---
+"SELECT * FROM " ++ vars.table]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<db:select doc:name="Select Data from Table" doc:id="c3e61e0a-4091-416c-b237-6bb96db7064a" config-ref="Database_Config">
+			<db:sql ><![CDATA[#[payload]]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="JAVA to JSON" doc:id="6c6d957d-61ac-485e-9466-2a7b8501a8e8" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Transformation" doc:id="385e1899-3d5c-4bd4-bd26-9bd7bfedcc70">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload map (o) -> {
+	unID: o.unID,
+	id: o.id,
+	connector: o.connector,
+	category: o.category,
+	version: o.version,
+	origin: o.origin,
+	program: o.program,
+	dtStarted: o.dtStarted,
+	dtUpdated: o.dtUpdated,
+	timeUpdated: o.timeUpdated,
+	used: o.used,
+	cost: o.cost,
+	details: o.text
+}]]></ee:set-payload>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="response"><![CDATA[%dw 2.0
+output application/json
+---
+payload map (o) -> {
+	unID: o.unID,
+	id: o.id,
+	connector: o.connector,
+	category: o.category,
+	version: o.version,
+	origin: o.origin,
+	program: o.program,
+	dtStarted: o.dtStarted,
+	dtUpdated: o.dtUpdated,
+	timeUpdated: o.timeUpdated,
+	used: o.used,
+	cost: o.cost,
+	details: o.text
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<file:write doc:name="Write Data into File" doc:id="ae91cc35-b84f-4d4f-b36f-407739352932" config-ref="File_Config" path="cipher-data.json">
+			<error-mapping sourceType="FILE:CONNECTIVITY" targetType="APP:FILE_CONNECTIVITY" />
+		</file:write>
+		<ee:transform doc:name="Response" doc:id="368099dd-06e5-40b0-ac47-87ca6e0c7537" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload
+//vars.response]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="9c9b2f5c-0eff-4ff9-9be2-dd864db2134a" message="#[payload]"/>
+		<error-handler >
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="bb3e8639-1ff1-47d0-b325-bcfe6e87d9bb" type="APP:FILE_CONNECTIVITY">
+				<ee:transform doc:name="200 - Data was not written in File" doc:id="f5152988-0f1f-4a3d-b60c-758196c4a501" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	statusCode: 200,
+	message: "The Data was not written in the File due to the File Connection problem.",
+	errorType: error.errorType.identifier as String ++ ":" ++ error.errorType.namespace as String,
+	description: error.description,
+	chronology: now()
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="httpStatus" ><![CDATA[200]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</on-error-continue>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="226cab51-b8aa-4118-a40a-464c1e43676e" type="FILE:ACCESS_DENIED, FILE:FILE_LOCK">
+				<ee:transform doc:name="400 - FILE ACCESS ERROR" doc:id="352d14ef-ffa5-40ca-af14-2a77948a09c1" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	statusCode: 200,
+	message: "The Data was not written in the File due to the File Feasibility problem.",
+	errorType: error.errorType.identifier as String ++ ":" ++ error.errorType.namespace as String,
+	description: error.description,
+	chronology: now()
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="httpStatus" ><![CDATA[200]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+	<flow name="read-decipher-data-apiFlow" doc:id="2362ede0-ae75-4abc-b55a-5749ad270460" >
+		<http:listener doc:name="GET /read" doc:id="53f26196-6e91-4685-bf30-2b67cc0d60ed" config-ref="HTTP_Listener_config" path="read"/>
+		<file:read doc:name="Read Data from File" doc:id="7d380b37-8178-4030-bc39-b5512d29df6e" config-ref="File_Config" path="cipher-data.json"/>
+		<ee:transform doc:name="to JSON" doc:id="98a56ce4-1b7a-4ca7-862b-88324b4e21d2" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<set-variable value="#[[]]" doc:name="Result" doc:id="c974572d-92e8-4773-97ca-3e55cc2aee4f" variableName="res" />
+		<foreach doc:name="For Each" doc:id="6175e8a1-8796-441a-80c2-e1933377f7d8" >
+			<ee:transform doc:name="fromBase64" doc:id="3bee9794-981e-4373-95b5-99cda595df9d" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+import fromBase64 from dw::core::Binaries
+output application/json
+---
+//payload mapObject(v, k, idx) -> {
+	//unID: v.unID,
+	//(k): read(fromBase64(v), "application/json")
+//}
+{
+	unID: payload.unID,
+	id: payload.id,
+	connector: read(fromBase64(payload.connector), "application/json"),
+	category: payload.category,
+	version: payload.version,
+	origin: read(fromBase64(payload.origin), "application/json"),
+	program: read(fromBase64(payload.program), "application/json"),
+	dtStarted: payload.dtStarted,
+	dtUpdated: payload.dtUpdated,
+	timeUpdated: payload.timeUpdated,
+	used: payload.used,
+	cost: payload.cost,
+	details: read(fromBase64(payload.details), "application/json")
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<ee:transform doc:name="Result" doc:id="0ec967b8-233f-49f1-99b9-3d0a62b241dd" >
+				<ee:message />
+				<ee:variables >
+					<ee:set-variable variableName="res" ><![CDATA[%dw 2.0
+output application/json
+---
+vars.res + payload]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+		</foreach>
+		<ee:transform doc:name="Results" doc:id="54d682a6-5b85-4a0f-b478-40f57c892eda" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+vars.res]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="response" ><![CDATA[%dw 2.0
+output application/json
+---
+vars.res]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<file:write doc:name="Write Data ino File" doc:id="1b245aa0-e469-4c1a-9f09-150fbe8cbcf4" config-ref="File_Config" path="decipher-data.json"/>
+		<ee:transform doc:name="Response" doc:id="8ad69392-d532-4518-b483-77a36bb379d7" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+vars.response]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="update-data-into-table-apiFlow" doc:id="13708db0-94fb-4f1c-804d-248a72f58205" >
+		<http:listener doc:name="GET /update" doc:id="61648bfd-c998-4c72-80db-be07b0fae913" config-ref="HTTP_Listener_config" path="update"/>
+		<set-variable value='#[attributes.queryParams.fname as String default "connectors-description.csv"]' doc:name="FileName" doc:id="1017dad6-416d-4273-95e9-078f51d62dc1" variableName="fname" />
+		<set-variable value='#[attributes.queryParams.fields splitBy(", ")]' doc:name="Fields" doc:id="56accf0d-0d94-45d7-873a-c48301736013" variableName="f"/>
+		<set-variable value='#[attributes.queryParams.values splitBy(", ")]' doc:name="Values" doc:id="2a88f24b-5108-4e9a-983f-d9893cf50a8a" variableName="v"/>
+		<set-variable value="#[attributes.queryParams.where as String]" doc:name="WHERE" doc:id="22876fad-ca6f-4ada-87d0-ab25290a8534" variableName="w"/>
+		<java:invoke-static method="createSQLUpdateFildsQuery(java.util.ArrayList,java.util.ArrayList,java.lang.String,java.lang.String)" doc:name="Create Update Query" doc:id="70ee6c0e-f232-48c4-b4d9-332dafbd6376" class="string.util.SQLQueryMaker" >
+			<java:args ><![CDATA[#[{"arg0": vars.f, "arg1": vars.v, "arg2": vars.fname, "arg3": (" " ++ vars.w as String)}]]]></java:args>
+		</java:invoke-static>
+		<ee:transform doc:name="Query" doc:id="37c9e7fc-bff6-4bdc-b244-04bcd3bf3ac3" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output text/plain
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="e4f9f396-6406-4751-a566-ae76c00bb752" message="#[payload]"/>
+		<db:update doc:name="Update Record in the Table" doc:id="5f384099-1d2f-4f44-b18c-9e0fc4192032" config-ref="Database_Config">
+			<db:sql ><![CDATA[#[payload]]]></db:sql>
+		</db:update>
+		<db:select doc:name="Select Updated Object" doc:id="dacee4b0-2c80-421e-a81f-c235e20a43a7" config-ref="Database_Config">
+			<db:sql ><![CDATA[SELECT * FROM connectors_info
+WHERE unID = 3]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transformation" doc:id="76a7101f-883c-453b-b612-7729e7d06d30" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map (o) -> {
+	unID: o.unID,
+	id: o.id,
+	connector: o.connector,
+	category: o.category,
+	version: o.version,
+	origin: o.origin,
+	program: o.program,
+	dtStarted: o.dtStarted,
+	dtUpdated: o.dtUpdated,
+	timeUpdated: o.timeUpdated,
+	used: o.used,
+	cost: o.cost,
+	details: o.text
+}]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="response" ><![CDATA[%dw 2.0
+output application/json
+---
+payload map (o) -> {
+	unID: o.unID,
+	id: o.id,
+	connector: o.connector,
+	category: o.category,
+	version: o.version,
+	origin: o.origin,
+	program: o.program,
+	dtStarted: o.dtStarted,
+	dtUpdated: o.dtUpdated,
+	timeUpdated: o.timeUpdated,
+	used: o.used,
+	cost: o.cost,
+	details: o.text
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<ee:transform doc:name="Response" doc:id="11b4cd52-2215-49e6-aa91-a11bb023b8da" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	message: "The Record was successfully Updated",
+	record: payload[0]
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

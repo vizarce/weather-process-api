@@ -1,0 +1,24 @@
+[
+  {
+    "time": "7.06.22, 14:37",
+    "fullUserName": "Жакун Ірина",
+    "linkedToUser": "-",
+    "actionContext": "Файл: Contact information",
+    "component": "Ядро системи",
+    "actionName": "Створено модуль курсу",
+    "description": "The user with id 388 created the resource activity with course module id 96725.",
+    "source": "web",
+    "ipAddress": "45.89.88.219"
+  },
+  {
+    "time": "7.06.22, 14:37",
+    "fullUserName": "Жакун Ірина",
+    "linkedToUser": "-",
+    "actionContext": "Файл: Contact information",
+    "component": "Ядро системи",
+    "actionName": "Створено модуль курсу",
+    "description": "The user with id 388 created the resource activity with course module id 96725.",
+    "source": "web",
+    "ipAddress": "45.89.88.219"
+  }
+]

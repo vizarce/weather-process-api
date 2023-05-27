@@ -1,0 +1,15 @@
+http:
+  host: "0.0.0.0"
+  port: "8081"
+  
+db:
+  host: "database-1.c5hjhpqkrcnr.eu-central-1.rds.amazonaws.com"
+  port: "3306"
+  user: "mule"
+  pass: "VIStudio1975"
+  database: "accounts"
+  
+file:
+  path: "/tmp"
+  name: "cypher-data.json"
+  decname: "decypher-data.json"
